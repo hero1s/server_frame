@@ -13,7 +13,8 @@
   <component name="ChangeListManager">
     <list default="true" id="3e8e4241-5ece-41d0-ba39-0585600e69db" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/build/CMakeLists.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/libmysqlclient.so" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/libprotobuf.so" beforeDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -81,7 +82,7 @@
       <workItem from="1610428550391" duration="843000" />
       <workItem from="1611624876339" duration="827000" />
       <workItem from="1611644219230" duration="735000" />
-      <workItem from="1611712080068" duration="1113000" />
+      <workItem from="1611712080068" duration="1713000" />
     </task>
     <servers />
   </component>
