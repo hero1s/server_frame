@@ -47,6 +47,13 @@ int FrameworkMain(int argc, char *argv[]) {
     return 0;
 }
 
+int ExitServer()
+{
+    LOG_DEBUG("call program exiting...");
+    CFrameWork::Instance().ShutDown();
+    return 0;
+}
+
 CApplication::CApplication() {
     m_status = 0;
     m_lastTick = 0;
@@ -70,7 +77,7 @@ bool CApplication::PreInit() {
 }
 
 bool CApplication::OverPreInit(){
-    //SOL_CALL_LUA(m_solLua["init_lua_service"](m_luaService));
+
     return true;
 }
 

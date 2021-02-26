@@ -17,6 +17,8 @@ using namespace std;
 
 extern int FrameworkMain(int argc, char* argv[]);
 
+extern int ExitServer();
+
 class CApplication : public AutoDeleteSingleton<CApplication> {
 public:
     CApplication();
