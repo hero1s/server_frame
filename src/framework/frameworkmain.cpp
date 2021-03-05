@@ -11,7 +11,6 @@
 #include "utility/comm_macro.h"
 #include "config/config.h"
 #include "lua_service/lua_bind.h"
-#include "ebus/frame_event.hpp"
 #include <memory>
 #include "time/time.hpp"
 #include "utility/puid.hpp"
