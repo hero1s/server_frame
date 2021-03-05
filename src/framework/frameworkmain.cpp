@@ -2,14 +2,11 @@
 #include <iostream>
 #include "framework.h"
 #include "framework/application.h"
-#include <malloc.h>
 #include "sol/sol.hpp"
 #include "helper/helper.h"
 #include "lua/lua.h"
 #include "spdlog/spdlog.h"
-#include "string/stringutility.h"
 #include "utility/comm_macro.h"
-#include "config/config.h"
 #include "lua_service/lua_bind.h"
 #include <memory>
 #include "time/time.hpp"
@@ -21,8 +18,6 @@ int FrameworkMain(int argc, char *argv[]) {
     if (argc <= 0 || argv == NULL) {
         throw "The input argument for FrameworkMain is illegal!";
     }
-    //mallopt(M_ARENA_MAX, 1);
-
     try {
         CFrameWork::Instance().InitializeEnvironment(argc, argv);
         CFrameWork::Instance().Run();

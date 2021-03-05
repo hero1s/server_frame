@@ -8,16 +8,23 @@ namespace {
 
 };
 
-CRedisWrap::CRedisWrap()
-        : m_timer(this) {
+CRedisWrap::CRedisWrap(){
     m_asyncConnecting = false;
 }
 
 CRedisWrap::~CRedisWrap() {
+    if(m_pTimer != nullptr){
+        m_pTimer->cancel();
+    }
 }
 
-void CRedisWrap::OnTimer() {
-    CApplication::Instance().schedule(&m_timer, 5000);
+void CRedisWrap::OnTimer(const std::error_code& err) {
+    if (!err) {
+        m_pTimer->expires_from_now(std::chrono::seconds(5));
+        m_pTimer->async_wait(std::bind(&CRedisWrap::OnTimer, this, std::placeholders::_1));
+    } else {
+        LOG_ERROR("asio timer is error or cancel,shutdown");
+    }
 
     try
     {
@@ -56,7 +63,9 @@ void CRedisWrap::OnTimer() {
 
 bool CRedisWrap::Init(asio::io_context &context, const stRedisConf & conf) {
     m_conf = conf;
-    CApplication::Instance().schedule(&m_timer, 20000);
+    m_pTimer = make_shared<asio::system_timer>(context);
+    m_pTimer->expires_from_now(std::chrono::seconds(20));
+    m_pTimer->async_wait(std::bind(&CRedisWrap::OnTimer, this, std::placeholders::_1));
 
     //同步客户端
     m_syncClient = std::make_shared<redisclient::RedisSyncClient>(context);
@@ -72,7 +81,9 @@ bool CRedisWrap::Init(asio::io_context &context, const stRedisConf & conf) {
 }
 
 void CRedisWrap::ShutDown() {
-    m_timer.cancel();
+    if(m_pTimer != nullptr){
+        m_pTimer->cancel();
+    }
 }
 
 bool CRedisWrap::Reconnect(bool bSync, bool bAsync) {
