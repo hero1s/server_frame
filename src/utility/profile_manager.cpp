@@ -328,7 +328,7 @@ bool ProfileManager::saveData(const char *file_name) {
 }
 
 bool ProfileManager::saveData(const char *servername, uint32_t serverid, uint32_t tid) {
-    char app_path[MAX_PATH] = {'\0'};
+    char app_path[MAX_PATH-100] = {'\0'};
     if (!createLogPath(app_path, MAX_PATH)) {
         return false;
     }
