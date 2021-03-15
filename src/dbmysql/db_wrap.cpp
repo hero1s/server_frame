@@ -6,6 +6,7 @@ using namespace svrlib;
 
 CDBWrap::CDBWrap()
 {
+    m_pTransaction = nullptr;
 }
 
 CDBWrap::~CDBWrap()
@@ -67,6 +68,31 @@ bool CDBWrap::ping()
     }
     return false;
 }
+/*--->[ 开始事务 ]*/
+bool CDBWrap::begin()
+{
+    m_pTransaction = make_shared<CMySQLTransaction>(&m_clDatabase);
+    return m_pTransaction->begin();
+}
+/*--->[ 提交事务 ]*/
+bool CDBWrap::commit()
+{
+    if(m_pTransaction)
+    {
+        return m_pTransaction->commit();
+    }
+    return false;
+}
+/*--->[ 回滚事务 ]*/
+bool CDBWrap::rollback()
+{
+    if(m_pTransaction)
+    {
+        return m_pTransaction->rollback();
+    }
+    return false;
+}
+
 bool CDBWrap::ExeSql(const string& strSql)
 {
     if (strSql.length()>MAX_SQL_LEN) {

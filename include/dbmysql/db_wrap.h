@@ -213,6 +213,7 @@ class CDBWrap {
 protected:
     CDBMySql m_clDatabase;
     CMysqlResultRow m_tmpRowData;
+    std::shared_ptr<CMySQLTransaction> m_pTransaction;
 
 public:
     CDBWrap();
@@ -223,6 +224,12 @@ public:
     bool dbSelect(string db);
     void dbClose();
     bool ping();
+    /*--->[ 开始事务 ]*/
+    bool begin();
+    /*--->[ 提交事务 ]*/
+    bool commit();
+    /*--->[ 回滚事务 ]*/
+    bool rollback();
 
     // 执行一条sql语句
     bool ExeSql(const string& strSql);

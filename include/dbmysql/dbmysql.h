@@ -359,7 +359,7 @@ public:
 
 	CMySQLTransaction(CDBMySql* pMySQL);
 
-	virtual~CMySQLTransaction();
+	virtual ~CMySQLTransaction();
 
 public:
 	/*--->[ 开始事务 ]*/
