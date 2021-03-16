@@ -119,12 +119,12 @@ bool CDBWrap::ExeSql(const string& strSql)
 }
 
 // 获得sql 语句的结果行数
-uint32_t CDBWrap::GetResNumExeSql(const string& strSql)
+int CDBWrap::GetResNumExeSql(const string& strSql)
 {
     if (strSql.length()>MAX_SQL_LEN) {
         LOG_ERROR("the sql is too length:{}", strSql.length());
         LOG_MYSQL("the sql is too length:{}", strSql.length());
-        return 0;
+        return -1;
     }
     try {
         CMySQLMultiFree clMultiFree(&m_clDatabase);
@@ -132,7 +132,7 @@ uint32_t CDBWrap::GetResNumExeSql(const string& strSql)
         if (!m_clDatabase.execute()) {
             LOG_ERROR("execute fail!,{}", strSql);
             LOG_MYSQL("execute fail!,{}", strSql);
-            return 0;
+            return -1;
         }
         CMySQLResult clResult = m_clDatabase.getResult();
         return clResult.getRowCount();
@@ -140,18 +140,18 @@ uint32_t CDBWrap::GetResNumExeSql(const string& strSql)
     catch (CMySQLException& e) {
         LOG_ERROR("Error:{}({})->{}->{}->sql:{}", e.uCode, e.szError, e.szMsg, e.szSqlState, strSql);
         LOG_MYSQL("Error:{}({})->{}->{}->sql:{}", e.uCode, e.szError, e.szMsg, e.szSqlState, strSql);
-        return 0;
+        return -1;
     }
     return 0;
 }
 
 // 获得影响行数
-uint64_t CDBWrap::GetAffectedNumExeSql(const string& strSql)
+int CDBWrap::GetAffectedNumExeSql(const string& strSql)
 {
     if (strSql.length()>MAX_SQL_LEN) {
         LOG_ERROR("the sql is too length:{}", strSql.length());
         LOG_MYSQL("the sql is too length:{}", strSql.length());
-        return 0;
+        return -1;
     }
     try {
         CMySQLMultiFree clMultiFree(&m_clDatabase);
@@ -159,14 +159,14 @@ uint64_t CDBWrap::GetAffectedNumExeSql(const string& strSql)
         if (!m_clDatabase.execute()) {
             LOG_ERROR("execute fail!,{}", strSql);
             LOG_MYSQL("execute fail!,{}", strSql);
-            return 0;
+            return -1;
         }
         return m_clDatabase.getRowAffected();
     }
     catch (CMySQLException& e) {
         LOG_ERROR("Error:{}({})->{}->{}->sql:{}", e.uCode, e.szError, e.szMsg, e.szSqlState, strSql);
         LOG_MYSQL("Error:{}({})->{}->{}->sql:{}", e.uCode, e.szError, e.szMsg, e.szSqlState, strSql);
-        return 0;
+        return -1;
     }
     return 0;
 }
@@ -278,7 +278,7 @@ bool CDBWrap::ExeBindSql(const string& strSql, vector<CBindParam>& bindParams)
 }
 
 // 插入数据
-uint64_t CDBWrap::Insert(string tblName, SQLJoin& data)
+int CDBWrap::Insert(string tblName, SQLJoin& data)
 {
     string strSql = GetInsertSql(tblName, data);
     try {
@@ -287,14 +287,14 @@ uint64_t CDBWrap::Insert(string tblName, SQLJoin& data)
         if (!m_clDatabase.execute()) {
             LOG_ERROR("execute fail!,{}", strSql);
             LOG_MYSQL("execute fail!,{}", strSql);
-            return 0;
+            return -1;
         }
         return m_clDatabase.getInsertIncrement();
     }
     catch (CMySQLException& e) {
         LOG_ERROR("Error:{}({})->{}->{}->sql:{}", e.uCode, e.szError, e.szMsg, e.szSqlState, strSql);
         LOG_MYSQL("Error:{}({})->{}->{}->sql:{}", e.uCode, e.szError, e.szMsg, e.szSqlState, strSql);
-        return 0;
+        return -1;
     }
     return 0;
 }

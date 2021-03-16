@@ -235,17 +235,17 @@ public:
     bool ExeSql(const string& strSql);
 
     // 获得sql语句的结果数量
-    uint32_t GetResNumExeSql(const string& strSql);
+    int GetResNumExeSql(const string& strSql);
 
     // 获得影响行数
-    uint64_t GetAffectedNumExeSql(const string& strSql);
+    int GetAffectedNumExeSql(const string& strSql);
 
     // 返回列名对应的值
     int Query(const string& strSql, vector<CMysqlResultRow>& vecData, int64_t& affectRow);
     bool ExeBindSql(const string& strSql, vector<CBindParam>& bindParams);
 
     // 插入数据
-    uint64_t Insert(string tblName, SQLJoin& data);
+    int Insert(string tblName, SQLJoin& data);
 
     // 更新数据
     int Update(string tblName, SQLJoin& data, SQLJoin& where);
