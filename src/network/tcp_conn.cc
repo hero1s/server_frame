@@ -31,6 +31,7 @@ namespace Network {
         ws_head_.reset();
         SetKeepAlive(true);
         SetTCPNoDelay(true);
+        decode_ = nullptr;
     }
 
     TCPConn::~TCPConn() {
@@ -178,7 +179,7 @@ namespace Network {
         return svrlib::time::getSysTime();
     }
 
-    bool TCPConn::SendInLoop(const char *data, uint16_t sz, bool createHead) {
+    bool TCPConn::SendInLoop(const char *data, uint16_t sz) {
         if (!socket_.is_open())
         {
             LOG_ERROR("the tcpConn is not open: {}", GetName());
@@ -190,21 +191,12 @@ namespace Network {
             {
                 writing_buffer_.Swap(write_buffer_);
             }
-            if (createHead) {
-                auto head = CreateMessageHeader(data,sz);
-                writing_buffer_.Write((const char*)&head, sizeof(head));
-            }
             writing_buffer_.Write(data, sz);
             AsyncWrite();
         }
         else
         {
-            if (createHead) {
-                auto head = CreateMessageHeader(data,sz);
-                write_buffer_.Write((const char*)&head, sizeof(head));
-            }
             write_buffer_.Write(data, sz);
-
             size_t buffer_size = write_buffer_.Size() + writing_buffer_.Size();
             if (buffer_size > high_water_mark_)
             {
@@ -244,7 +236,7 @@ namespace Network {
         }
         //Ð´Êý¾Ý
         stream.write(sz, data);
-        SendInLoop(stream.getBuffer(), stream.getPosition(), false);
+        SendInLoop(stream.getBuffer(), stream.getPosition());
         LOG_DEBUG("send web msg:{},size:{}", sz, stream.getPosition());
         return true;
     }
@@ -400,7 +392,7 @@ namespace Network {
                     break;
                 }
                 ws_head_.reset();
-                msg_fn_(shared_from_this(), (uint8_t*)buf.Data(),buf.Size());
+                msg_fn_(shared_from_this(), buf.Data(),buf.Size());
                 recvtime_ = Now();
                 heart_msgcount_++;
             }
@@ -408,24 +400,22 @@ namespace Network {
         }
         else
         {
-            while (recv_buffer_.Size() >= sizeof(message_head))
+            while (decode_ != nullptr)
             {
-                message_head *head = (message_head *) recv_buffer_.ReadBegin();
-                if (head->length_ > MAX_MESSAGE_LENGTH)
+                int iLen = decode_->GetPacketLen(recv_buffer_.ReadBegin(),recv_buffer_.Size());
+                if(iLen < 0)
                 {
-                    LOG_ERROR("the message length is more than length:{}", head->length_);
+                    LOG_ERROR("the message length is more than length:{}",recv_buffer_.Size());
                     HandleClose();
                     return;
                 }
-                if (recv_buffer_.Size() >= head->length_ + sizeof(message_head))
+                else if(iLen > 0)
                 {
-                    msg_fn_(shared_from_this(), (uint8_t*)(recv_buffer_.ReadBegin() + sizeof(message_head)), head->length_);
-                    recv_buffer_.ReadBytes(head->length_ + sizeof(message_head));
+                    msg_fn_(shared_from_this(),recv_buffer_.ReadBegin(), iLen);
+                    recv_buffer_.ReadBytes(iLen);
                     recvtime_ = Now();
                     heart_msgcount_++;
-                }
-                else
-                {
+                }else{
                     break;
                 }
             }
@@ -500,7 +490,7 @@ namespace Network {
         svrlib::base64::encode(key, reinterpret_cast<const char *>(message_digest), 20);
         char http_res[640] = "";
         sprintf(http_res, WEB_SOCKET_HANDS_RE, key);
-        SendInLoop((char *) http_res, strlen(http_res), false);
+        SendInLoop((char *) http_res, strlen(http_res));
         shake_hands_ = true;
         LOG_DEBUG("shake hand success");
     }

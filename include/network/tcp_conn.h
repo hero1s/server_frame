@@ -26,11 +26,13 @@ namespace Network {
 
         TCPConn(asio::io_service &service_, tcp::socket &&socket, std::string name, bool bWebSocket = false);
 
-        ~TCPConn();
+        virtual ~TCPConn();
 
         void Close();
 
         void SetMessageCallback(const MessageCallback &cb) { msg_fn_ = cb; }
+
+        void SetMessageDecode(MsgDecodePtr decode){ decode_ = decode; }
 
         void SetConnCallback(const ConnCallback &cb) { conn_fn_ = cb; }
 
@@ -96,7 +98,7 @@ namespace Network {
 
         void HandleWrite(asio::error_code err, std::size_t trans_bytes);
 
-        bool SendInLoop(const char *data, uint16_t sz,bool createHead = true);
+        bool SendInLoop(const char *data, uint16_t sz);
 
         bool SendWebSocketMsg(const char *data, uint16_t sz);
 
@@ -107,7 +109,7 @@ namespace Network {
             OPCODE_TXT = 0x1,//标识一个text类型数据包
             OPCODE_BIN = 0x2,//标识一个binary类型数据包
             //0x3 - 7：保留
-                    OPCODE_CLR = 0x8,//标识一个断开连接类型数据包
+            OPCODE_CLR = 0x8,//标识一个断开连接类型数据包
             OPCODE_PIN = 0x9,//标识一个ping类型数据包
             OPCODE_PON = 0xA,//表示一个pong类型数据包
         };
@@ -194,6 +196,6 @@ namespace Network {
         WriteCompleteCallback write_complete_fn_;
         HighWaterMarkCallback high_water_mark_fn_;
         CloseCallback close_fn_;
-
+        MsgDecodePtr decode_;
     };
 };

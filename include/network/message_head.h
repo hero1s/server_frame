@@ -6,18 +6,11 @@
 
 namespace Network {
     const static uint32_t MAX_MESSAGE_LENGTH = 32 * 1024;//网络层限制最大包长
-
-    struct message_head {
-        message_head() : length_(0) {}
-
-        uint32_t length_;
+    class MsgDecode
+    {
+    public:
+        //0收包不完全，>0 获取收到的包长，-1 错误包
+        virtual int GetPacketLen(const char * pData, uint32_t len){ return len; }
     };
-
-    inline message_head CreateMessageHeader(const char *data, uint32_t length) {
-        message_head head;
-        head.length_ = length;
-        return head;
-    }
-
 };
 
