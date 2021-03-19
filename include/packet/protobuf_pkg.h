@@ -12,6 +12,7 @@ using namespace Network;
 #pragma  pack(1)
 //对外数据包头
 typedef struct packet_header_t {
+    uint32_t msgLen;        // 消息长度
     uint16_t msgID;         // 消息id
 } PACKETHEAD;
 
@@ -25,6 +26,29 @@ typedef struct {
 } packet_protobuf;
 #pragma pack()
 
+class ClientDecode : public MsgDecode
+{
+public:
+    //0收包不完全，>0 获取收到的包长，-1 错误包
+    virtual int GetPacketLen(const char * pData, uint32_t len)
+    {
+        if(len < sizeof(packet_header_t))
+        {
+            return 0;
+        }
+        packet_header_t *head = (packet_header_t *) pData;
+        if(head->msgLen > PACKET_MAX_SIZE)
+        {
+            return -1;
+        }
+        if(head->msgLen < len)
+        {
+            return head->msgLen;
+        }
+        return 0;
+    }
+};
+
 class pkg_client {
 public:
     static bool SendProtobufMsg(const TCPConnPtr &connPtr, const google::protobuf::Message *msg, uint16_t msgID) {
@@ -33,7 +57,7 @@ public:
         return SendBuffMsg(connPtr, sstr.c_str(), sstr.length(), msgID);
     }
 
-    static bool SendBuffMsg(const TCPConnPtr &connPtr, const void *msg, uint16_t msg_len, uint16_t msgID) {
+    static bool SendBuffMsg(const TCPConnPtr &connPtr, const void *msg, uint32_t msg_len, uint16_t msgID) {
         if (connPtr == nullptr)
         {
             return false;
@@ -41,6 +65,7 @@ public:
         static packet_protobuf pkt;
         memset(&pkt, 0, sizeof(pkt));
         pkt.header.msgID = msgID;
+        pkt.header.msgLen = msg_len + sizeof(pkt);
 
         if (msg_len >= PACKET_MAX_DATA_SIZE)
         {

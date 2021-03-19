@@ -9,12 +9,14 @@
 #include "svrlib.h"
 #include "protobuf_handle.h"
 #include "network/tcp_conn.h"
+#include "network/message_head.h"
 
 using namespace Network;
 
 #pragma  pack(1)
 //内部数据包头------------------------------------------------------------------------------------------------------------
 typedef struct inner_header_t {
+    uint32_t msgLen;        // 消息长度
     uint8_t route;          // 路由类型
     uint32_t routeID;       // 路由ID
     uint32_t uin;           // uin(服务器内部转发用)
@@ -32,6 +34,29 @@ typedef struct {
 
 #pragma pack()
 
+class InnerDecode : public MsgDecode
+{
+public:
+    //0收包不完全，>0 获取收到的包长，-1 错误包
+    virtual int GetPacketLen(const char * pData, uint32_t len)
+    {
+        if(len < sizeof(inner_header_t))
+        {
+            return 0;
+        }
+        inner_header_t *head = (inner_header_t *) pData;
+        if(head->msgLen > INNER_MAX_SIZE)
+        {
+            return -1;
+        }
+        if(head->msgLen < len)
+        {
+            return head->msgLen;
+        }
+        return 0;
+    }
+};
+
 class pkg_inner {
 public:
     static bool
@@ -43,7 +68,7 @@ public:
     }
 
     static bool
-    SendBuffMsg(const TCPConnPtr& connPtr, const void *msg, uint16_t msg_len, uint16_t msgID, uint32_t uin,
+    SendBuffMsg(const TCPConnPtr& connPtr, const void *msg, uint32_t msg_len, uint16_t msgID, uint32_t uin,
                      uint8_t route, uint32_t routeID) {
         if (connPtr == nullptr) {
             LOG_ERROR("the connPtr is nullptr");
@@ -55,6 +80,7 @@ public:
         pkt.header.uin = uin;
         pkt.header.route = route;
         pkt.header.routeID = routeID;
+        pkt.header.msgLen = msg_len + sizeof(pkt);
 
         if (msg_len >= INNER_MAX_DATA_SIZE) {
             LOG_ERROR("msg length more than max length:{}", msg_len);
