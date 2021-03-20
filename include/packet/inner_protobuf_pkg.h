@@ -96,7 +96,7 @@ public:
 class CInnerMsgHanlde : public CProtobufHandleBase<INNERHEAD> {
 public:
 
-    int OnHandleClientMsg(TCPConnPtr connPtr, uint8_t *pData, size_t uiDataLen) {
+    int OnHandleClientMsg(TCPConnPtr connPtr, uint8_t *pData, uint32_t uiDataLen) {
         if (pData == NULL)
             return -1;
         inner_header_t *head = (inner_header_t *) pData;

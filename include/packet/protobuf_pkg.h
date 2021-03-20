@@ -82,7 +82,7 @@ public:
 // 消息处理
 class CProtobufMsgHanlde : public CProtobufHandleBase<PACKETHEAD> {
 public:
-    int OnHandleClientMsg(const TCPConnPtr &connPtr, uint8_t *pData, size_t uiDataLen) {
+    int OnHandleClientMsg(const TCPConnPtr &connPtr, uint8_t *pData, uint32_t uiDataLen) {
         if (pData == NULL)
             return -1;
         packet_header_t *head = (packet_header_t *) pData;

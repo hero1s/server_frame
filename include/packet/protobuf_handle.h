@@ -58,7 +58,7 @@ public:
     }
 
 
-    int OnDispatchMsg(const TCPConnPtr& connPtr, const uint8_t *pkt_buf,uint16_t buf_len,Head * head){
+    int OnDispatchMsg(const TCPConnPtr& connPtr, const uint8_t *pkt_buf,uint32_t buf_len,Head * head){
         m_connPtr = connPtr;
         m_head = head;
         m_pkt_buf = pkt_buf;
@@ -71,7 +71,7 @@ protected:
     std::unordered_map<uint32_t, handFunc> m_handlers;
     TCPConnPtr m_connPtr;
     const uint8_t * m_pkt_buf;
-    uint16_t m_buf_len;
+    uint32_t m_buf_len;
     uint32_t m_msgID;
     Head * m_head;
 private:
