@@ -39,7 +39,6 @@ CMySQLException::CMySQLException(MYSQL* mysql, unsigned int code, const char* pM
 		dStrcpy(this->szSqlState, sizeof(this->szSqlState), mysql_sqlstate(mysql));
 	}
 	LOG_CRITIC("MYSQL Exception:{} {} ", code, pMsg);
-	LOG_MYSQL("MYSQL Exception:{} {} ", code, pMsg);
 }
 
 //-------------------------------------------------------------
@@ -65,7 +64,6 @@ CMySQLException::CMySQLException(MYSQL_STMT* stmt, unsigned int code, const char
 		dStrcpy(this->szSqlState, sizeof(this->szSqlState), mysql_stmt_sqlstate(stmt));
 	}
 	LOG_CRITIC("MYSQL Exception:{} {} ", code, pMsg);
-	LOG_MYSQL("MYSQL Exception:{} {} ", code, pMsg);
 }
 
 

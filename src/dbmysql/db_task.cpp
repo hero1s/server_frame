@@ -104,7 +104,6 @@ void CDBTask::Run() {
                     else
                     {
                         LOG_ERROR("sql exec fail:{}", pReq->sqlStr);
-                        LOG_MYSQL("SQL EXEC Fail:{}", pReq->sqlStr);
                     }
                 }
             }

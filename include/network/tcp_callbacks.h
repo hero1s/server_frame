@@ -15,7 +15,7 @@ namespace Network {
 
     typedef std::function<void(const TCPConnPtr &)> WriteCompleteCallback;
 
-    typedef std::function<void(const TCPConnPtr &, size_t)> HighWaterMarkCallback;
+    typedef std::function<void(const TCPConnPtr &, uint32_t)> HighWaterMarkCallback;
 
     typedef std::function<void(const TCPConnPtr &, char * pData,uint32_t length)> MessageCallback;
 
@@ -23,6 +23,6 @@ namespace Network {
 
     void DefaultMessageCallback(const TCPConnPtr & connPtr, char * pData,uint32_t length);
 
-    void DefaultHighWaterMarkCallback(const TCPConnPtr & connPtr, size_t len);
+    void DefaultHighWaterMarkCallback(const TCPConnPtr & connPtr, uint32_t len);
 
 };

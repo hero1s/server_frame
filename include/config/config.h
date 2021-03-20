@@ -51,19 +51,17 @@ struct stServerCfg {
     uint16_t logdays          = 5;
     uint32_t logasync         = 0;
     std::string logname     = "log";
-    std::string logmysql    = "mysql_error";
 
     stServerCfg(){
 
     }
-    void SetLogInfo(uint8_t _loglv,uint32_t _logsize,uint16_t _logdays,uint32_t _logasync,const char* _logname, const char* _logmysql)
+    void SetLogInfo(uint8_t _loglv,uint32_t _logsize,uint16_t _logdays,uint32_t _logasync,const char* _logname)
     {
         loglv        = _loglv;
         logsize      = _logsize;
         logdays      = _logdays;
         logasync     = _logasync;
         logname      = _logname;
-        logmysql     = _logmysql;
     }
 
 };

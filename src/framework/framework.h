@@ -18,7 +18,6 @@ public:
 	void TimerTick(const std::error_code& err);
 	void InitializeEnvironment(int argc, char* argv[]);
 	void InitSpdlog();
-	void InitMysqlSpdlog();
 
 	static void ReloadConfig(int iSig);
 	static void StopRun(int iSig);

@@ -39,6 +39,7 @@ public:
         packet_header_t *head = (packet_header_t *) pData;
         if(head->msgLen > PACKET_MAX_SIZE)
         {
+            LOG_ERROR("head msg len:{}",head->msgLen);
             return -1;
         }
         if(head->msgLen < len)
@@ -65,7 +66,7 @@ public:
         static packet_protobuf pkt;
         memset(&pkt, 0, sizeof(pkt));
         pkt.header.msgID = msgID;
-        pkt.header.msgLen = msg_len + sizeof(pkt);
+        pkt.header.msgLen = msg_len + PACKET_HEADER_SIZE;
 
         if (msg_len >= PACKET_MAX_DATA_SIZE)
         {

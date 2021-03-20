@@ -57,7 +57,7 @@ namespace Network {
     void TCPClient::Reconnect() {
         ++reconnecting_times_;
         Connect();
-        LOG_DEBUG("tcp client reconnect:{}",reconnecting_times_);
+        LOG_DEBUG("tcp client reconnect:{},{}:{}",reconnecting_times_,remote_addr_,std::to_string(remote_port_));
     }
 
     void TCPClient::Disconnect() {

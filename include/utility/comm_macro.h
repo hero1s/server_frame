@@ -123,8 +123,6 @@ catch (sol::error& e)\
 #define LOG_CRITIC(x,...) spdlog::get("log")->critical("[{}:{}][{}] " x,__FILENAME__,__LINE__,__FUNCTION__, ##__VA_ARGS__)
 #define LOG_WARN(x,...) spdlog::get("log")->warn("[{}:{}][{}] " x,__FILENAME__,__LINE__,__FUNCTION__, ##__VA_ARGS__)
 
-#define LOG_MYSQL(x,...) spdlog::get("mysql")->error("[{}:{}][{}] " x,__FILENAME__,__LINE__,__FUNCTION__, ##__VA_ARGS__)
-
 #endif
 
 #ifndef DUMP_PROTO_MSG_INFO

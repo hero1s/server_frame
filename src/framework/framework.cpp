@@ -98,7 +98,6 @@ void CFrameWork::InitializeEnvironment(int argc, char *argv[]) {
 
     CApplication::Instance().PreInit();
     InitSpdlog();
-    InitMysqlSpdlog();
 
     CApplication::Instance().OverPreInit();
     bool bRet = CApplication::Instance().Initialize();
@@ -128,28 +127,6 @@ void CFrameWork::InitSpdlog() {
     }
 }
 
-void CFrameWork::InitMysqlSpdlog() {
-    if (m_serverCfg.logmysql.length() < 2) {
-        LOG_DEBUG("mysql log length < 2,not open mysql log {}", m_serverCfg.logmysql);
-        return;
-    }
-
-    if (m_serverCfg.logasync > 0) {//异步模式
-        auto logmysql = spdlog::rotating_logger_st("mysql", m_serverCfg.logmysql, m_serverCfg.logsize,
-                                                   m_serverCfg.logdays);
-        logmysql->flush_on(spdlog::level::err);
-        logmysql->set_pattern("[%Y-%m-%d %H:%M:%S.%e][%n][%l][tid %t] %v");
-        logmysql->set_level(spdlog::level::level_enum(m_serverCfg.loglv));
-        spdlog::set_async_mode(m_serverCfg.logasync);
-    } else {
-        auto logmysql = spdlog::rotating_logger_mt("mysql", m_serverCfg.logmysql, m_serverCfg.logsize,
-                                                   m_serverCfg.logdays);
-        logmysql->flush_on(spdlog::level::trace);
-        logmysql->set_pattern("[%Y-%m-%d %H:%M:%S.%e][%n][%l][tid %t] %v");
-        logmysql->set_level(spdlog::level::level_enum(m_serverCfg.loglv));
-    }
-}
-
 void CFrameWork::ParseInputParam(int argc, char *argv[]) {
     cmdline::parser a;
     a.add<int>("sid", '\0', "server id", false, 1, cmdline::range(1, 100000));
@@ -159,7 +136,6 @@ void CFrameWork::ParseInputParam(int argc, char *argv[]) {
     a.add<int>("logdays", '\0', "log save days", false, 5, cmdline::range(1, 30));
     a.add<int>("logasync", '\0', "log async size", false, 0);
     a.add<string>("logname", '\0', "log name", false, "log.txt");
-    a.add<string>("logmysql", '\0', "mysql log", false, "");
 
     bool ok = a.parse(argc, argv);
     if (!ok) {
@@ -175,12 +151,6 @@ void CFrameWork::ParseInputParam(int argc, char *argv[]) {
     m_serverCfg.logasync = a.get<int>("logasync");
     m_serverCfg.logname = CStringUtility::FormatToString("%d_%s", CApplication::Instance().GetServerID(),
                                                          a.get<string>("logname").c_str());
-    if (a.exist("logmysql")) {
-        m_serverCfg.logmysql = CStringUtility::FormatToString("%d_%s", CApplication::Instance().GetServerID(),
-                                                              a.get<string>("logmysql").c_str());
-    } else {
-        m_serverCfg.logmysql = "";
-    }
     m_confFilename = cfgName;
 }
 
