@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <mutex>
 
-namespace Network {
+namespace svrlib {
 #define MAX_MEMORYHEAD_SIZE 12         //4个字节的指针块地址 + 4个字节的链表首地址 + 4位验证码
 #define MAGIC_CODE          0x123456   //验证码
 

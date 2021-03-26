@@ -1,6 +1,6 @@
 #include "memory/memory_pools.h"
 
-namespace Network {
+namespace svrlib {
     CMemoryPools *CMemoryPools::m_pMemoryPools = NULL;
 
     CMemoryPools::CMemoryPools(void) {

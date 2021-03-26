@@ -52,7 +52,7 @@ CApplication::CApplication() {
     m_status = 0;
     m_lastTick = 0;
     m_wheelTime = 0;
-    m_wheelPrecision = 10;
+    m_wheelPrecision = 100;
     m_solLua.open_libraries();
     m_luaService = new svrlib::lua_service(&m_solLua);
     m_uuid = svrlib::uuid::generate();
@@ -123,12 +123,8 @@ uint8_t CApplication::GetStatus() {
     return m_status;
 }
 
-void CApplication::schedule(TimerEventInterface *event, uint64_t delta) {
+void CApplication::Schedule(TimerEventInterface *event, uint64_t delta) {
     m_timers.schedule(event, delta/m_wheelPrecision);
-}
-
-void CApplication::schedule_in_range(TimerEventInterface *event, uint64_t start, uint64_t end) {
-    m_timers.schedule_in_range(event, start/m_wheelPrecision, end/m_wheelPrecision);
 }
 
 //»ñµÃsolÄ£¿é

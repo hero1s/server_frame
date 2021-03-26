@@ -46,9 +46,7 @@ public:
     uint8_t GetStatus();
 
     //定时器
-    void schedule(TimerEventInterface* event, uint64_t delta);
-
-    void schedule_in_range(TimerEventInterface* event, uint64_t start, uint64_t end);
+    void Schedule(TimerEventInterface* event, uint64_t delta);
 
     //获得sol模块
     sol::state& GetSolLuaState();
