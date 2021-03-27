@@ -24,6 +24,10 @@ struct RedisBuffer
     inline RedisBuffer(std::string s);
     inline RedisBuffer(std::vector<char> buf);
     inline RedisBuffer(int64_t l);//modify toney
+    inline RedisBuffer(float f);
+    inline RedisBuffer(int i);
+    inline RedisBuffer(double d);
+
 
     inline size_t size() const;
 
@@ -52,6 +56,21 @@ RedisBuffer::RedisBuffer(std::vector<char> buf)
 }
 RedisBuffer::RedisBuffer(int64_t l)
     :data(std::to_string(l))
+{
+
+}
+RedisBuffer::RedisBuffer(float f)
+        :data(std::to_string(f))
+{
+
+}
+RedisBuffer::RedisBuffer(int i)
+        :data(std::to_string(i))
+{
+
+}
+RedisBuffer::RedisBuffer(double d)
+        :data(std::to_string(d))
 {
 
 }
