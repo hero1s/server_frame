@@ -42,7 +42,7 @@ public:
             LOG_ERROR("head msg len:{}",head->msgLen);
             return -1;
         }
-        if(head->msgLen < len)
+        if(head->msgLen <= len)
         {
             return head->msgLen;
         }

@@ -220,7 +220,7 @@ public:
     virtual ~CDBWrap();
 
 public:
-    bool dbOpen(string host, string user, string passwd, string db, unsigned int port = 0);
+    bool dbOpen(string host, string user, string passwd, string db, unsigned int port);
     bool dbSelect(string db);
     void dbClose();
     bool ping();
