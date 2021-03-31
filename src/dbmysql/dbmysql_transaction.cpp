@@ -7,8 +7,8 @@
 *--------------------------------------------------------------
 *MySQL事务
 *------------------------------------------------------------*/
-#include <my_global.h>
 #include "dbmysql/dbmysql.h"
+#include <my_global.h>
 /*************************************************************/
 /*
 **
@@ -28,7 +28,7 @@ CMySQLTransaction::CMySQLTransaction(CDBMySql* pMySQL)
 */
 CMySQLTransaction::CMySQLTransaction(MYSQL* mysql)
 {
-    m_pMySQL    = mysql;
+    m_pMySQL = mysql;
     m_bEndTrans = true;
 }
 
@@ -50,8 +50,7 @@ bool CMySQLTransaction::begin()
     if (!m_pMySQL || !m_bEndTrans)
         return false;
 
-    if (mysql_autocommit(m_pMySQL, false)==0)
-    {
+    if (mysql_autocommit(m_pMySQL, false) == 0) {
         m_bEndTrans = false;
         return true;
     }
@@ -70,8 +69,7 @@ bool CMySQLTransaction::commit()
     if (!m_pMySQL || m_bEndTrans)
         return false;
 
-    if (mysql_commit(m_pMySQL)==0)
-    {
+    if (mysql_commit(m_pMySQL) == 0) {
         m_bEndTrans = true;
         return true;
     }
@@ -90,12 +88,10 @@ bool CMySQLTransaction::rollback()
     if (!m_pMySQL || m_bEndTrans)
         return false;
 
-    if (mysql_rollback(m_pMySQL)==0)
-    {
+    if (mysql_rollback(m_pMySQL) == 0) {
         m_bEndTrans = true;
         return true;
     }
 
     return false;
 }
-

@@ -9,13 +9,12 @@
 /*------------------------------------------------------------------------------
 **
 */
-const char    CFileStream::m_gszAccess[Access_Max][5] =
-                      {
-                              "rb",
-                              "wb",
-                              "rb+",
-                              "ab+",
-                      };
+const char CFileStream::m_gszAccess[Access_Max][5] = {
+    "rb",
+    "wb",
+    "rb+",
+    "ab+",
+};
 
 /*------------------------------------------------------------------------------
 **
@@ -39,7 +38,7 @@ CFileStream::~CFileStream()
 */
 bool CFileStream::open(const char* pszFileName, _enAccess eAccess)
 {
-    if (eAccess>=Access_Max)
+    if (eAccess >= Access_Max)
         eAccess = _Read;
     return open(pszFileName, m_gszAccess[eAccess]);
 }
@@ -54,11 +53,11 @@ bool CFileStream::open(const char* pszFileName, const char* pszMode)
     close();
 #ifdef WIN32
     ::fopen_s(&m_pFile, pszFileName, pszMode ? pszMode : "rb");
-#else//WIN32
-    m_pFile = ::fopen(pszFileName,pszMode ? pszMode : "rb");
-#endif//WIN32
+#else //WIN32
+    m_pFile = ::fopen(pszFileName, pszMode ? pszMode : "rb");
+#endif //WIN32
 
-    return (m_pFile!=NULL);
+    return (m_pFile != NULL);
 }
 
 /*------------------------------------------------------------------------------
@@ -92,8 +91,7 @@ uint32_t CFileStream::getFileLength()
         return 0;
 
     int32_t nTell = ftell(m_pFile);
-    if (seek(0, SEEK_END)!=0)
-    {
+    if (seek(0, SEEK_END) != 0) {
         seek(nTell, SEEK_SET);
         return 0;
     }
@@ -137,7 +135,7 @@ bool CFileStream::isEof()
     if (!m_pFile)
         return true;
 
-    return (::feof(m_pFile)!=0);
+    return (::feof(m_pFile) != 0);
 }
 
 /*------------------------------------------------------------------------------
@@ -163,7 +161,7 @@ bool CFileStream::_read(uint32_t uBytes, void* outBuffer)
     if (!m_pFile || !uBytes || !outBuffer)
         return 0;
 
-    return (::fread(outBuffer, 1, uBytes, m_pFile)==uBytes);
+    return (::fread(outBuffer, 1, uBytes, m_pFile) == uBytes);
 }
 
 /*------------------------------------------------------------------------------
@@ -175,7 +173,7 @@ bool CFileStream::_write(uint32_t uBytes, const void* inBuffer)
     if (!m_pFile || !uBytes || !inBuffer)
         return 0;
 
-    return (::fwrite(inBuffer, 1, uBytes, m_pFile)==uBytes);
+    return (::fwrite(inBuffer, 1, uBytes, m_pFile) == uBytes);
 }
 
 /*------------------------------------------------------------------------------
@@ -215,13 +213,10 @@ uint32_t CFileStream::fprintf(const char* pszFormat, ...)
     va_start(argptr, pszFormat);
 #ifdef WIN32
     uint32_t uLen = ::vfprintf_s(m_pFile, pszFormat, argptr);
-#else//WIN32
-    uint32_t uLen = ::vfprintf(m_pFile,pszFormat,argptr);
-#endif//WIN32
+#else //WIN32
+    uint32_t uLen = ::vfprintf(m_pFile, pszFormat, argptr);
+#endif //WIN32
     va_end(argptr);
 
     return uLen;
 }
-
-
-

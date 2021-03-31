@@ -8,47 +8,39 @@
 #include "utility/basic_functions.h"
 
 #include "framework/application.h"
-#include "spdlog/spdlog.h"
 #include "sol/sol.hpp"
+#include "spdlog/spdlog.h"
 
-#include "packet/protobuf_pkg.h"
 #include "packet/inner_protobuf_pkg.h"
+#include "packet/protobuf_pkg.h"
 
 #include "string/stringutility.h"
 #include "time/time.hpp"
 #include "utility/profile_manager.h"
 
+#include <algorithm>
+#include <array>
+#include <atomic>
+#include <bitset>
+#include <cassert>
+#include <chrono>
+#include <cinttypes>
+#include <condition_variable>
+#include <cstdarg>
+#include <cstdint>
+#include <forward_list>
+#include <fstream>
+#include <functional>
+#include <iomanip>
+#include <list>
+#include <map>
 #include <memory>
-#include <vector>
+#include <mutex>
+#include <queue>
+#include <shared_mutex>
+#include <string>
+#include <string_view>
+#include <thread>
 #include <unordered_map>
 #include <unordered_set>
-#include <queue>
-#include <map>
-#include <list>
-#include <array>
-#include <algorithm>
-#include <thread>
-#include <chrono>
-#include <mutex>
-#include <bitset>
-#include <cinttypes>
-#include <string_view>
-#include <algorithm>
-#include <cstdint>
-#include <cassert>
-#include <string>
-#include <cstdarg>
-#include <iomanip>
-#include <fstream>
-#include <shared_mutex>
-#include <atomic>
-#include <condition_variable>
-#include <functional>
-#include <forward_list>
-
-
-
-
-
-
-
+#include <vector>

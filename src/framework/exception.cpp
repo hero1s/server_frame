@@ -1,10 +1,10 @@
 
-#include <execinfo.h>
-#include <signal.h>
-#include <exception>
-#include <iostream>
-#include <stdlib.h>
 #include "svrlib.h"
+#include <exception>
+#include <execinfo.h>
+#include <iostream>
+#include <signal.h>
+#include <stdlib.h>
 
 using namespace std;
 
@@ -15,8 +15,7 @@ public:
         void* array[25];
         int nSize = backtrace(array, 25);
         char** symbols = backtrace_symbols(array, nSize);
-        for (int i = 0; i<nSize; i++)
-        {
+        for (int i = 0; i < nSize; i++) {
             cout << symbols[i] << endl;
             LOG_CRITIC("ExceptionTracer()：{}", symbols[i]);
         }
@@ -24,7 +23,7 @@ public:
     }
 };
 
-template<class SignalExceptionClass>
+template <class SignalExceptionClass>
 class SignalTranslator {
 private:
     class SingleTonTranslator {
@@ -81,21 +80,14 @@ private:
         static void Handler()
         {
             // Exception from construction/destruction of global variables
-            try
-            {
+            try {
                 // re-throw
                 throw;
-            }
-            catch (SegmentationFault&)
-            {
+            } catch (SegmentationFault&) {
                 cout << "SegmentationFault" << endl;
-            }
-            catch (FloatingPointException&)
-            {
+            } catch (FloatingPointException&) {
                 cout << "FloatingPointException" << endl;
-            }
-            catch (...)
-            {
+            } catch (...) {
                 cout << "Unknown Exception" << endl;
             }
             //if this is a thread performing some core activity
@@ -119,68 +111,3 @@ public:
 // of ExceptionHandler object to make sure that
 // ExceptionHandler::SingleTonHandler::SingleTonHandler() is invoked
 ExceptionHandler g_objExceptionHandler;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -1,36 +1,36 @@
 
 #pragma once
 
-#include "utility/basic_types.h"
-#include "utility/basic_functions.h"
-#include "string/string_functions.h"
-#include <string>
 #include "dbmysql/dbmysql.h"
 #include "dbmysql/sql_join.h"
+#include "string/string_functions.h"
+#include "utility/basic_functions.h"
+#include "utility/basic_types.h"
+#include <string>
 #include <vector>
 
+#include <iostream>
+#include <map>
+#include <sstream>
+#include <stdint.h>
 #include <stdio.h>
 #include <string.h>
-#include <stdint.h>
-#include <iostream>
-#include <sstream>
-#include <map>
 
 using namespace std;
 
 class MYSQLValue {
 public:
     enum {
-      emTYPE_STR = 0,
-      emTYPE_UINT8,
-      emTYPE_INT8,
-      emTYPE_UINT16,
-      emTYPE_INT16,
-      emTYPE_UINT32,
-      emTYPE_INT32,
-      emTYPE_UINT64,
-      emTYPE_INT64,
-      emTYPE_BLOB,
+        emTYPE_STR = 0,
+        emTYPE_UINT8,
+        emTYPE_INT8,
+        emTYPE_UINT16,
+        emTYPE_INT16,
+        emTYPE_UINT32,
+        emTYPE_INT32,
+        emTYPE_UINT64,
+        emTYPE_INT64,
+        emTYPE_BLOB,
     };
 
     MYSQLValue()
@@ -47,15 +47,15 @@ public:
         if (!pData) {
             return 0;
         }
-        m_strData.resize(iLen+1);
-        memcpy((char*) m_strData.data(), pData, iLen);
-        ((char*) m_strData.data())[iLen] = '\0';
+        m_strData.resize(iLen + 1);
+        memcpy((char*)m_strData.data(), pData, iLen);
+        ((char*)m_strData.data())[iLen] = '\0';
         m_dataType = dataType;
         return 0;
     }
     int Size()
     {
-        return m_strData.size()-1;
+        return m_strData.size() - 1;
     }
     const char* Data()
     {
@@ -66,7 +66,7 @@ public:
         return m_dataType;
     }
 
-    template<typename T>
+    template <typename T>
     T as()
     {
         T asVal;
@@ -74,15 +74,16 @@ public:
 
         return asVal;
     }
-    template<typename T>
+    template <typename T>
     operator T()
     {
         return as<T>();
     }
+
 private:
     int pri_as(char*& val)
     {
-        val = (char*) Data();
+        val = (char*)Data();
         return 0;
     }
 
@@ -107,74 +108,75 @@ private:
     }
     int pri_as(std::string& val)
     {
-        string tmp(Data(),Size());
+        string tmp(Data(), Size());
         val = tmp;
         return 0;
     }
-    template<typename T>
+    template <typename T>
     int pri_as(T& val)
     {
-//Add-Begin by dantezhu in 2011-03-15 20:15:19
-//要不然如果是空串的话，转成的int是随机值
-        if (this->Size()<=0) {
+        //Add-Begin by dantezhu in 2011-03-15 20:15:19
+        //要不然如果是空串的话，转成的int是随机值
+        if (this->Size() <= 0) {
             val = 0;
             return 0;
         }
-//Add-End
+        //Add-End
         stringstream ss;
         ss << m_strData;
         ss >> val;
         return 0;
     }
+
 protected:
     string m_strData;
-    uint8_t m_dataType;//数据类型
+    uint8_t m_dataType; //数据类型
 };
 //绑定参数
-class CBindParam: public MYSQLValue {
+class CBindParam : public MYSQLValue {
 public:
     CBindParam() { }
     virtual ~CBindParam() { }
 
     void Bind(const std::string& val)
     {
-        SetData(val.c_str(),val.length(),emTYPE_STR);
+        SetData(val.c_str(), val.length(), emTYPE_STR);
     }
     void BindBlob(const void* pData, int iLen)
     {
-        SetData(pData,iLen,emTYPE_BLOB);
+        SetData(pData, iLen, emTYPE_BLOB);
     }
     void Bind(int8_t val)
     {
-        SetData(&val, sizeof(val),emTYPE_INT8);
+        SetData(&val, sizeof(val), emTYPE_INT8);
     }
     void Bind(uint8_t val)
     {
-        SetData(&val, sizeof(val),emTYPE_UINT8);
+        SetData(&val, sizeof(val), emTYPE_UINT8);
     }
     void Bind(int16_t val)
     {
-        SetData(&val, sizeof(val),emTYPE_INT16);
+        SetData(&val, sizeof(val), emTYPE_INT16);
     }
     void Bind(uint16_t val)
     {
-        SetData(&val, sizeof(val),emTYPE_UINT16);
+        SetData(&val, sizeof(val), emTYPE_UINT16);
     }
     void Bind(int32_t val)
     {
-        SetData(&val, sizeof(val),emTYPE_INT32);
+        SetData(&val, sizeof(val), emTYPE_INT32);
     }
     void Bind(uint32_t val)
     {
-        SetData(&val, sizeof(val),emTYPE_UINT32);
+        SetData(&val, sizeof(val), emTYPE_UINT32);
     }
     void Bind(int64_t val)
     {
-        SetData(&val, sizeof(val),emTYPE_INT64);
+        SetData(&val, sizeof(val), emTYPE_INT64);
     }
     void Bind(uint64_t val)
     {
-        SetData(&val, sizeof(val),emTYPE_UINT64);
+        SetData(&val, sizeof(val), emTYPE_UINT64);
     }
 };
 
@@ -201,12 +203,13 @@ public:
     {
         return m_rowData[filedName];
     }
+
 protected:
     map<string, MYSQLValue> m_rowData;
 };
 
 #ifndef MAX_SQL_LEN
-#define MAX_SQL_LEN 12*1024
+#define MAX_SQL_LEN 12 * 1024
 #endif
 /*************************************************************/
 class CDBWrap {
@@ -274,7 +277,4 @@ public:
 
 private:
     void DebugSqlLog(const string& sql);
-
 };
-
-

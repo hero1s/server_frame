@@ -1,40 +1,38 @@
 
-#include <iostream>
 #include "framework.h"
 #include "framework/application.h"
-#include "sol/sol.hpp"
 #include "helper/helper.h"
 #include "lua/lua.h"
-#include "spdlog/spdlog.h"
-#include "utility/comm_macro.h"
 #include "lua_service/lua_bind.h"
-#include <memory>
+#include "sol/sol.hpp"
+#include "spdlog/spdlog.h"
 #include "time/time.hpp"
+#include "utility/comm_macro.h"
 #include "utility/puid.hpp"
+#include <iostream>
+#include <memory>
 
 using namespace svrlib;
 
-int FrameworkMain(int argc, char *argv[]) {
+int FrameworkMain(int argc, char* argv[])
+{
     if (argc <= 0 || argv == NULL) {
         throw "The input argument for FrameworkMain is illegal!";
     }
     try {
         CFrameWork::Instance().InitializeEnvironment(argc, argv);
         CFrameWork::Instance().Run();
-    }
-    catch (char const *what) {
+    } catch (char const* what) {
         std::cout << what << std::endl;
         LOG_ERROR("process exit {}", what);
         CApplication::Instance().ShutDown();
-    }
-    catch (sol::error &e) {
+    } catch (sol::error& e) {
         std::cout << "sol error " << e.what() << std::endl;
         LOG_ERROR("sol error:{}", e.what());
         CApplication::Instance().ShutDown();
-    }
-    catch (std::system_error &e){
+    } catch (std::system_error& e) {
         std::cout << "std::system_error:" << e.what() << std::endl;
-        LOG_ERROR("std::system_error:{}",e.what());
+        LOG_ERROR("std::system_error:{}", e.what());
         CApplication::Instance().ShutDown();
     }
     spdlog::drop_all();
@@ -48,7 +46,8 @@ int ExitServer()
     return 0;
 }
 
-CApplication::CApplication() {
+CApplication::CApplication()
+{
     m_status = 0;
     m_lastTick = 0;
     m_wheelTime = 0;
@@ -58,33 +57,38 @@ CApplication::CApplication() {
     m_uuid = svrlib::uuid::generate();
 }
 
-CApplication::~CApplication() {
+CApplication::~CApplication()
+{
     m_status = 0;
     SAFE_DELETE(m_luaService);
 }
 
-bool CApplication::PreInit() {
+bool CApplication::PreInit()
+{
     lua_bind bind(m_solLua);
     bind.export_lua_bind();
-    
-    return true;
-}
-
-bool CApplication::OverPreInit(){
 
     return true;
 }
 
-void CApplication::OverShutDown() {
-    for(auto s:m_tcpServers){
+bool CApplication::OverPreInit()
+{
+
+    return true;
+}
+
+void CApplication::OverShutDown()
+{
+    for (auto s : m_tcpServers) {
         s->Stop();
     }
     //m_tcpServers.clear();
 }
 
-uint64_t CApplication::PreTick() {
+uint64_t CApplication::PreTick()
+{
     // 驱动时钟
-    time::getSystemTick64(true);// 更新tick
+    time::getSystemTick64(true); // 更新tick
     time::getSysTime(true);
     std::srand(time::getSysTime());
     if (m_lastTick == 0) {
@@ -94,50 +98,57 @@ uint64_t CApplication::PreTick() {
     int64_t delta = curTime - m_lastTick;
     if (delta > 0) {
         m_wheelTime += delta;
-        m_timers.advance(m_wheelTime/m_wheelPrecision);
-        m_wheelTime = m_wheelTime%m_wheelPrecision;
+        m_timers.advance(m_wheelTime / m_wheelPrecision);
+        m_wheelTime = m_wheelTime % m_wheelPrecision;
         m_lastTick = curTime;
     }
 
     return delta;
 }
 
-void CApplication::SetServerID(unsigned int svrid) {
+void CApplication::SetServerID(unsigned int svrid)
+{
     m_uiServerID = svrid;
 }
 
-uint32_t CApplication::GetServerID() {
+uint32_t CApplication::GetServerID()
+{
     return m_uiServerID;
 }
 
-string CApplication::GetUUID(){
+string CApplication::GetUUID()
+{
     return m_uuid;
 }
 
 //状态
-void CApplication::SetStatus(uint8_t status) {
+void CApplication::SetStatus(uint8_t status)
+{
     m_status = status;
 }
 
-uint8_t CApplication::GetStatus() {
+uint8_t CApplication::GetStatus()
+{
     return m_status;
 }
 
-void CApplication::Schedule(TimerEventInterface *event, uint64_t delta) {
-    m_timers.schedule(event, delta/m_wheelPrecision);
+void CApplication::Schedule(TimerEventInterface* event, uint64_t delta)
+{
+    m_timers.schedule(event, delta / m_wheelPrecision);
 }
 
 //获得sol模块
-sol::state &CApplication::GetSolLuaState() {
+sol::state& CApplication::GetSolLuaState()
+{
     return m_solLua;
 }
 
-asio::io_context &CApplication::GetAsioContext() {
+asio::io_context& CApplication::GetAsioContext()
+{
     return m_ioContext;
 }
 //获取lua_service
-svrlib::lua_service* CApplication::GetLuaService(){
+svrlib::lua_service* CApplication::GetLuaService()
+{
     return m_luaService;
 }
-
-

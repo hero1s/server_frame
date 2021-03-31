@@ -19,11 +19,10 @@ Encrypt::Encrypt()
 void Encrypt::makeKey(const uint8_t* key, int32_t len)
 {
     m_key = 0;
-    for (int32_t i = 0; i<len; i++)
-    {
+    for (int32_t i = 0; i < len; i++) {
         uint64_t k = key[i];
         uint64_t m = 1;
-        k *= (m << (8*(i%8)));
+        k *= (m << (8 * (i % 8)));
         m_key += k;
     }
 }
@@ -31,7 +30,7 @@ void Encrypt::makeKey(const uint8_t* key, int32_t len)
 /** 根据当前的key值，生成下一个key值 **/
 void Encrypt::makeNextKey()
 {
-    m_key = m_key*0xE3779B97+0x9E3779B9;
+    m_key = m_key * 0xE3779B97 + 0x9E3779B9;
 }
 
 /**
@@ -58,10 +57,9 @@ uint8_t* Encrypt::encrypt(const uint8_t* source, int32_t len, uint8_t* dest)
     // 取m_key的最低位为掩码
     uint8_t mask = m_key & 0xff;
     dest[0] = (source[0] ^ mask);
-    for (int32_t i = 1; i<len; i++)
-    {
+    for (int32_t i = 1; i < len; i++) {
         dest[i] = (source[i] ^ mask);
-        mask = source[mask%i];
+        mask = source[mask % i];
     }
     makeNextKey();
     return dest;
@@ -79,10 +77,9 @@ uint8_t* Encrypt::decrypt(const uint8_t* source, int32_t len, uint8_t* dest)
 {
     uint8_t mask = m_key & 0xff;
     dest[0] = source[0] ^ mask;
-    for (int32_t i = 1; i<len; i++)
-    {
+    for (int32_t i = 1; i < len; i++) {
         dest[i] = (source[i] ^ mask);
-        mask = dest[mask%i];
+        mask = dest[mask % i];
     }
     makeNextKey();
     return dest;

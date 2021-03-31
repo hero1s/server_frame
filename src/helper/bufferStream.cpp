@@ -2,8 +2,8 @@
 /***************************************************************
 * 
 ***************************************************************/
-#include "string/string_functions.h"
 #include "helper/bufferStream.h"
+#include "string/string_functions.h"
 #include <iostream>
 #include <stdarg.h>
 /*************************************************************/
@@ -11,7 +11,7 @@
 //------------------------------ 构建一个全局静态数据库
 CBufferStream& CBufferStream::buildStream()
 {
-    static char          szBuffer[1024*1024] = {0};
+    static char szBuffer[1024 * 1024] = { 0 };
     static CBufferStream clStream;
 
     clStream.initBufferStream(szBuffer, sizeof(szBuffer));
@@ -19,14 +19,14 @@ CBufferStream& CBufferStream::buildStream()
 }
 
 //------------------------------------------------------
-//------------------------------ 
+//------------------------------
 CBufferStream::CBufferStream(char* pBuffer, uint32_t uSize)
 {
     initBufferStream(pBuffer, uSize);
 }
 
 //------------------------------------------------------
-//------------------------------ 
+//------------------------------
 CBufferStream::~CBufferStream()
 {
 }
@@ -37,12 +37,11 @@ CBufferStream::~CBufferStream()
 void CBufferStream::initBufferStream(char* pBuffer, uint32_t uSize)
 {
 
-    m_pBuffer     = pBuffer;
+    m_pBuffer = pBuffer;
     m_uBufferSize = uSize;
-    m_uBufferPos  = 0;
-    if (!pBuffer || !uSize)
-    {
-        m_pBuffer     = NULL;
+    m_uBufferPos = 0;
+    if (!pBuffer || !uSize) {
+        m_pBuffer = NULL;
         m_uBufferSize = 0;
         return;
     }
@@ -51,8 +50,7 @@ void CBufferStream::initBufferStream(char* pBuffer, uint32_t uSize)
 bool CBufferStream::setPosition(uint32_t newPosition)
 {
 
-    if (newPosition<=m_uBufferSize)
-    {
+    if (newPosition <= m_uBufferSize) {
         m_uBufferPos = uint32_t(newPosition);
         return true;
     }
@@ -65,7 +63,7 @@ bool CBufferStream::setPosition(uint32_t newPosition)
 bool CBufferStream::_read(uint32_t uBytes, void* outBuffer)
 {
 
-    if (!uBytes || !outBuffer || getSpareSize()<uBytes)
+    if (!uBytes || !outBuffer || getSpareSize() < uBytes)
         return false;
 
     memcpy(outBuffer, getSpareBuffer(), uBytes);
@@ -79,7 +77,7 @@ bool CBufferStream::_read(uint32_t uBytes, void* outBuffer)
 bool CBufferStream::_write(uint32_t uBytes, const void* inBuffer)
 {
 
-    if (!uBytes || !inBuffer || getSpareSize()<uBytes)
+    if (!uBytes || !inBuffer || getSpareSize() < uBytes)
         return false;
 
     memcpy(getSpareBuffer(), inBuffer, size_t(uBytes));
@@ -104,5 +102,3 @@ uint32_t CBufferStream::fprintf(const char* pszFormat, ...)
 
     return uLen;
 }
-
-

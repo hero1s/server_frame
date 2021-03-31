@@ -15,8 +15,8 @@
 *6.通过重复调用mysql_stmt_fetch()，按行将数据提取到缓冲区，直至未发现更多行为止。
 *7.通过更改参数值并再次执行语句，重复步骤3到步骤6。
 *------------------------------------------------------------*/
-#include <my_global.h>
 #include "dbmysql/dbmysql.h"
+#include <my_global.h>
 /*************************************************************/
 /*
 **
@@ -26,11 +26,11 @@ CMySQLStatement::CMySQLStatement(MYSQL_STMT* pStatement)
     m_pStatement = pStatement;
 
     m_pParamLength = NULL;
-    m_pParamBind   = NULL;
+    m_pParamBind = NULL;
     m_ulParamCount = 0;
 
-    m_ulRowCount    = 0;
-    m_pResultBind   = NULL;
+    m_ulRowCount = 0;
+    m_pResultBind = NULL;
     m_ulResultCount = 0;
 }
 
@@ -48,23 +48,23 @@ CMySQLStatement::~CMySQLStatement()
 CMySQLStatement& CMySQLStatement::operator=(CMySQLStatement& clMySQLStatement)
 {
     close();
-    m_pStatement   = clMySQLStatement.m_pStatement;
+    m_pStatement = clMySQLStatement.m_pStatement;
     m_pParamLength = clMySQLStatement.m_pParamLength;
-    m_pParamBind   = clMySQLStatement.m_pParamBind;
+    m_pParamBind = clMySQLStatement.m_pParamBind;
     m_ulParamCount = clMySQLStatement.m_ulParamCount;
 
-    m_ulRowCount    = clMySQLStatement.m_ulRowCount;
-    m_pResultBind   = clMySQLStatement.m_pResultBind;
+    m_ulRowCount = clMySQLStatement.m_ulRowCount;
+    m_pResultBind = clMySQLStatement.m_pResultBind;
     m_ulResultCount = clMySQLStatement.m_ulResultCount;
 
     /*因为需要晰构关闭必须置空*/
     clMySQLStatement.m_pParamLength = NULL;
-    clMySQLStatement.m_pStatement   = NULL;
-    clMySQLStatement.m_pParamBind   = NULL;
+    clMySQLStatement.m_pStatement = NULL;
+    clMySQLStatement.m_pParamBind = NULL;
     clMySQLStatement.m_ulParamCount = 0;
 
-    clMySQLStatement.m_ulRowCount    = 0;
-    clMySQLStatement.m_pResultBind   = NULL;
+    clMySQLStatement.m_ulRowCount = 0;
+    clMySQLStatement.m_pResultBind = NULL;
     clMySQLStatement.m_ulResultCount = 0;
 
     return *this;
@@ -80,12 +80,12 @@ void CMySQLStatement::freeBind()
 
     if (m_pParamBind)
         delete[] m_pParamBind;
-    m_pParamBind   = NULL;
+    m_pParamBind = NULL;
     m_ulParamCount = 0;
 
     if (m_pResultBind)
         delete[] m_pResultBind;
-    m_pResultBind   = NULL;
+    m_pResultBind = NULL;
     m_ulResultCount = 0;
 
     m_ulRowCount = 0;
@@ -102,7 +102,7 @@ bool CMySQLStatement::close()
     if (!m_pStatement)
         return false;
 
-    if (mysql_stmt_close(m_pStatement)!=0)
+    if (mysql_stmt_close(m_pStatement) != 0)
         return false;
 
     m_pStatement = NULL;
@@ -117,7 +117,7 @@ bool CMySQLStatement::freeResult()
     if (!m_pStatement)
         return false;
 
-    if (mysql_stmt_free_result(m_pStatement)==0)
+    if (mysql_stmt_free_result(m_pStatement) == 0)
         return true;
 
     return false;
@@ -133,7 +133,7 @@ bool CMySQLStatement::cmd(const char* pCmd, ...)
         return false;
 
     unsigned long ulCmdLength = 0;
-    char          szCommand[16*1024];
+    char szCommand[16 * 1024];
     memset(szCommand, 0, sizeof(szCommand));
 
     va_list argptr;
@@ -145,8 +145,7 @@ bool CMySQLStatement::cmd(const char* pCmd, ...)
         return false;
 
     /*为执行操作准备SQL字符串*/
-    if (mysql_stmt_prepare(m_pStatement, szCommand, ulCmdLength)!=0)
-    {
+    if (mysql_stmt_prepare(m_pStatement, szCommand, ulCmdLength) != 0) {
 #ifdef _MySQL_throw
         throw CMySQLException(m_pStatement, 0, "mysql_stmt_prepare()");
 #endif
@@ -157,34 +156,28 @@ bool CMySQLStatement::cmd(const char* pCmd, ...)
     /*获得参数数量*/
     m_ulParamCount = mysql_stmt_param_count(m_pStatement);
     /*分配缓冲区*/
-    if (m_ulParamCount)
-    {
-        m_pParamBind   = new MYSQL_BIND[m_ulParamCount];
+    if (m_ulParamCount) {
+        m_pParamBind = new MYSQL_BIND[m_ulParamCount];
         m_pParamLength = new unsigned long[m_ulParamCount];
-        if (!m_pParamBind)
-        {
+        if (!m_pParamBind) {
 #ifdef _MySQL_throw
             throw CMySQLException(m_pStatement, 0, "mysql_stmt_param_count()分配参数缓冲区失败!");
 #endif
             return false;
         }
-        memset(m_pParamBind, 0, sizeof(MYSQL_BIND)*m_ulParamCount);
-        memset(m_pParamLength, 0, sizeof(unsigned long)*m_ulParamCount);
+        memset(m_pParamBind, 0, sizeof(MYSQL_BIND) * m_ulParamCount);
+        memset(m_pParamLength, 0, sizeof(unsigned long) * m_ulParamCount);
     }
 
     /*结果*/
-    if (1)
-    {
+    if (1) {
         /*返回关于最近语句的行数*/
         m_ulResultCount = mysql_stmt_field_count(m_pStatement);
 
-    }
-    else
-    {
+    } else {
         /*取出结果集中信息*/
         MYSQL_RES* pResultMetadata = mysql_stmt_result_metadata(m_pStatement);
-        if (pResultMetadata)
-        {
+        if (pResultMetadata) {
             /*获得查询结果列数量*/
             m_ulResultCount = mysql_num_fields(pResultMetadata);
             mysql_free_result(pResultMetadata);
@@ -192,17 +185,15 @@ bool CMySQLStatement::cmd(const char* pCmd, ...)
     }
 
     /*分配缓冲区*/
-    if (m_ulResultCount)
-    {
+    if (m_ulResultCount) {
         m_pResultBind = new MYSQL_BIND[m_ulResultCount];
-        if (!m_pResultBind)
-        {
+        if (!m_pResultBind) {
 #ifdef _MySQL_throw
             throw CMySQLException(m_pStatement, 0, "分配结果缓冲区失败!");
 #endif
             return false;
         }
-        memset(m_pResultBind, 0, sizeof(MYSQL_BIND)*m_ulResultCount);
+        memset(m_pResultBind, 0, sizeof(MYSQL_BIND) * m_ulResultCount);
     }
 
     return true;
@@ -216,8 +207,7 @@ bool CMySQLStatement::execute()
     if (!m_pStatement)
         return false;
 
-    if (mysql_stmt_execute(m_pStatement))
-    {
+    if (mysql_stmt_execute(m_pStatement)) {
 #ifdef _MySQL_throw
         throw CMySQLException(m_pStatement, 0, "mysql_stmt_execute()");
 #endif
@@ -226,22 +216,18 @@ bool CMySQLStatement::execute()
 
     /*设置返回结果更新字段最大长度值*/
     my_bool bUpdateMaxLength = 1;
-    if (mysql_stmt_attr_get(m_pStatement, STMT_ATTR_UPDATE_MAX_LENGTH, &bUpdateMaxLength)==0)
-    {
-        if (bUpdateMaxLength!=1)
-        {
+    if (mysql_stmt_attr_get(m_pStatement, STMT_ATTR_UPDATE_MAX_LENGTH, &bUpdateMaxLength) == 0) {
+        if (bUpdateMaxLength != 1) {
             bUpdateMaxLength = 1;
             /*如果设为1：更新mysql_stmt_store_result()中的元数据MYSQL_FIELD->max_length*/
-            if (mysql_stmt_attr_set(m_pStatement, STMT_ATTR_UPDATE_MAX_LENGTH, &bUpdateMaxLength))
-            {
+            if (mysql_stmt_attr_set(m_pStatement, STMT_ATTR_UPDATE_MAX_LENGTH, &bUpdateMaxLength)) {
                 /*如果选项未知，返回非0值*/
             }
         }
     }
 
     /*获得结果缓冲到客户端*/
-    if (mysql_stmt_store_result(m_pStatement))
-    {
+    if (mysql_stmt_store_result(m_pStatement)) {
 #ifdef _MySQL_throw
         throw CMySQLException(m_pStatement, 0, "mysql_stmt_store_result()");
 #endif
@@ -261,7 +247,7 @@ bool CMySQLStatement::reset()
     if (!m_pStatement)
         return false;
 
-    if (mysql_stmt_reset(m_pStatement)==0)
+    if (mysql_stmt_reset(m_pStatement) == 0)
         return true;
 
 #ifdef _MySQL_throw
@@ -303,7 +289,7 @@ bool CMySQLStatement::bindParams()
         return false;
 
     /*绑定缓冲*/
-    if (mysql_stmt_bind_param(m_pStatement, m_pParamBind)==0)
+    if (mysql_stmt_bind_param(m_pStatement, m_pParamBind) == 0)
         return true;
 
 #ifdef _MySQL_throw
@@ -320,10 +306,10 @@ bool CMySQLStatement::sendLongData(unsigned int parameter_number, const char* da
     if (!m_pStatement)
         return false;
 
-    if (parameter_number>=m_ulParamCount)
+    if (parameter_number >= m_ulParamCount)
         return false;
 
-    if (mysql_stmt_send_long_data(m_pStatement, parameter_number, data, length)==0)
+    if (mysql_stmt_send_long_data(m_pStatement, parameter_number, data, length) == 0)
         return true;
 
 #ifdef _MySQL_throw
@@ -340,7 +326,7 @@ bool CMySQLStatement::bindResults()
     if (!m_pStatement || !m_pResultBind)
         return false;
 
-    return (mysql_stmt_bind_result(m_pStatement, m_pResultBind)==0);
+    return (mysql_stmt_bind_result(m_pStatement, m_pResultBind) == 0);
 }
 
 /*
@@ -352,11 +338,10 @@ bool CMySQLStatement::rowMore()
         return false;
 
     int nRes = mysql_stmt_fetch(m_pStatement);
-    if (nRes==MYSQL_NO_DATA)
+    if (nRes == MYSQL_NO_DATA)
         return false;
 
-    if (nRes!=0 && mysql_stmt_errno(m_pStatement)!=0)
-    {
+    if (nRes != 0 && mysql_stmt_errno(m_pStatement) != 0) {
 #ifdef _MySQL_throw
         throw CMySQLException(m_pStatement, 0, "mysql_stmt_fetch()");
 #endif
@@ -388,14 +373,14 @@ bool CMySQLStatement::getColume(MYSQL_BIND* bind, unsigned int column, unsigned 
         return false;
 
     int nRes = mysql_stmt_fetch_column(m_pStatement, bind, column, offset);
-    if (nRes==0)
+    if (nRes == 0)
         return true;
 
-    if (nRes==CR_NO_DATA)
+    if (nRes == CR_NO_DATA)
         return false;
 
 #ifdef _MySQL_throw
-    throw CMySQLException(m_pStatement, 0, "mysql_stmt_fetch_column()错误的列序号!");/*CR_INVALID_PARAMETER_NO*/
+    throw CMySQLException(m_pStatement, 0, "mysql_stmt_fetch_column()错误的列序号!"); /*CR_INVALID_PARAMETER_NO*/
 #endif
 
     return false;
@@ -405,10 +390,9 @@ bool CMySQLStatement::getColume(MYSQL_BIND* bind, unsigned int column, unsigned 
 **绑定参数
 */
 bool CMySQLStatement::bindParam(unsigned int uField, enum_field_types buffer_type, void* buffer, unsigned long length,
-        my_bool* is_null)
+    my_bool* is_null)
 {
-    if (uField>=m_ulParamCount || !m_pStatement)
-    {
+    if (uField >= m_ulParamCount || !m_pStatement) {
 #ifdef _MySQL_throw
         throw CMySQLException(m_pStatement, 0, "CMySQLStatement::bindParam()");
 #endif
@@ -418,9 +402,9 @@ bool CMySQLStatement::bindParam(unsigned int uField, enum_field_types buffer_typ
     m_pParamLength[uField] = length;
 
     m_pParamBind[uField].buffer_type = buffer_type;
-    m_pParamBind[uField].buffer      = buffer;
-    m_pParamBind[uField].length      = &m_pParamLength[uField];
-    m_pParamBind[uField].is_null     = is_null;        /*如果值为NULL，该变量为“真”*/
+    m_pParamBind[uField].buffer = buffer;
+    m_pParamBind[uField].length = &m_pParamLength[uField];
+    m_pParamBind[uField].is_null = is_null; /*如果值为NULL，该变量为“真”*/
 
     return true;
 }
@@ -428,12 +412,10 @@ bool CMySQLStatement::bindParam(unsigned int uField, enum_field_types buffer_typ
 /*
 **
 */
-bool
-CMySQLStatement::bindParam_Int(unsigned int uField, enum_field_types buffer_type, my_bool is_unsigned, void* buffer,
-        my_bool* is_null)
+bool CMySQLStatement::bindParam_Int(unsigned int uField, enum_field_types buffer_type, my_bool is_unsigned, void* buffer,
+    my_bool* is_null)
 {
-    if (uField>=m_ulParamCount || !m_pStatement)
-    {
+    if (uField >= m_ulParamCount || !m_pStatement) {
 #ifdef _MySQL_throw
         throw CMySQLException(m_pStatement, 0, "绑定参数溢出!");
 #endif
@@ -441,9 +423,9 @@ CMySQLStatement::bindParam_Int(unsigned int uField, enum_field_types buffer_type
     }
 
     m_pParamBind[uField].buffer_type = buffer_type;
-    m_pParamBind[uField].is_unsigned = is_unsigned;    /*是否为无符号*/
-    m_pParamBind[uField].buffer      = buffer;
-    m_pParamBind[uField].is_null     = is_null;        /*如果值为NULL，该变量为“真”*/
+    m_pParamBind[uField].is_unsigned = is_unsigned; /*是否为无符号*/
+    m_pParamBind[uField].buffer = buffer;
+    m_pParamBind[uField].is_null = is_null; /*如果值为NULL，该变量为“真”*/
 
     return true;
 }
@@ -452,20 +434,19 @@ CMySQLStatement::bindParam_Int(unsigned int uField, enum_field_types buffer_type
 **绑定结果
 */
 bool CMySQLStatement::bindResult(unsigned int uField, enum_field_types buffer_type, void* buffer,
-        unsigned long buffer_length, my_bool* is_null)
+    unsigned long buffer_length, my_bool* is_null)
 {
-    if (uField>=m_ulResultCount || !m_pStatement)
-    {
+    if (uField >= m_ulResultCount || !m_pStatement) {
 #ifdef _MySQL_throw
         throw CMySQLException(m_pStatement, 0, "绑定结果溢出!");
 #endif
         return false;
     }
 
-    m_pResultBind[uField].buffer_type   = buffer_type;
+    m_pResultBind[uField].buffer_type = buffer_type;
     m_pResultBind[uField].buffer_length = buffer_length;
-    m_pResultBind[uField].buffer        = buffer;
-    m_pResultBind[uField].is_null       = is_null;        /*如果值为NULL，该变量为“真”*/
+    m_pResultBind[uField].buffer = buffer;
+    m_pResultBind[uField].is_null = is_null; /*如果值为NULL，该变量为“真”*/
 
     return true;
 }
@@ -473,12 +454,10 @@ bool CMySQLStatement::bindResult(unsigned int uField, enum_field_types buffer_ty
 /*
 **绑定结果整型
 */
-bool
-CMySQLStatement::bindResult_Int(unsigned int uField, enum_field_types buffer_type, my_bool is_unsigned, void* buffer,
-        my_bool* is_null)
+bool CMySQLStatement::bindResult_Int(unsigned int uField, enum_field_types buffer_type, my_bool is_unsigned, void* buffer,
+    my_bool* is_null)
 {
-    if (uField>=m_ulResultCount || !m_pStatement)
-    {
+    if (uField >= m_ulResultCount || !m_pStatement) {
 #ifdef _MySQL_throw
         throw CMySQLException(m_pStatement, 0, "CMySQLStatement::bindResult_Int()");
 #endif
@@ -486,12 +465,9 @@ CMySQLStatement::bindResult_Int(unsigned int uField, enum_field_types buffer_typ
     }
 
     m_pResultBind[uField].buffer_type = buffer_type;
-    m_pResultBind[uField].is_unsigned = is_unsigned;    /*是否为无符号*/
-    m_pResultBind[uField].buffer      = buffer;
-    m_pResultBind[uField].is_null     = is_null;        /*如果值为NULL，该变量为“真”*/
+    m_pResultBind[uField].is_unsigned = is_unsigned; /*是否为无符号*/
+    m_pResultBind[uField].buffer = buffer;
+    m_pResultBind[uField].is_null = is_null; /*如果值为NULL，该变量为“真”*/
 
     return true;
 }
-
-
-

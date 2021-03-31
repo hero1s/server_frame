@@ -1,12 +1,12 @@
 
 #pragma once
 
-#include "svrlib.h"
+#include "asio.hpp"
 #include "config/config.h"
-#include <string>
 #include "redisasyncclient.h"
 #include "redissyncclient.h"
-#include "asio.hpp"
+#include "svrlib.h"
+#include <string>
 
 using namespace std;
 using namespace svrlib;
@@ -21,11 +21,11 @@ public:
 
     virtual void OnTimer(const std::error_code& err);
 
-    virtual bool Init(asio::io_context &context, const stRedisConf & conf);
+    virtual bool Init(asio::io_context& context, const stRedisConf& conf);
 
     virtual void ShutDown();
 
-//常用命令
+    //常用命令
 public:
     redisclient::RedisValue append(const std::string& key, const std::string& value);
     redisclient::RedisValue auth(const std::string& password);
@@ -112,20 +112,20 @@ public:
     redisclient::RedisValue zscore(const std::string& key, const std::string& member);
     //redisclient::RedisValue zunionstore();
 
-
 protected:
     virtual bool Reconnect(bool bSync, bool bAsync);
 
     virtual void TestConnect(bool bSync, bool bAsync);
 
-    virtual void HandSyncError(const std::string &err);
+    virtual void HandSyncError(const std::string& err);
 
-    virtual void HandAsyncError(const std::string &err);
+    virtual void HandAsyncError(const std::string& err);
 
-    virtual redisclient::RedisValue SafeSyncCommond(const std::string &cmd, std::deque<redisclient::RedisBuffer> args);
+    virtual redisclient::RedisValue SafeSyncCommond(const std::string& cmd, std::deque<redisclient::RedisBuffer> args);
 
-    virtual void SafeAsyncCommond(const std::string &cmd, std::deque<redisclient::RedisBuffer> args,
-                          std::function<void(redisclient::RedisValue)> handler = [](redisclient::RedisValue){});
+    virtual void SafeAsyncCommond(
+        const std::string& cmd, std::deque<redisclient::RedisBuffer> args,
+        std::function<void(redisclient::RedisValue)> handler = [](redisclient::RedisValue) {});
 
 protected:
     std::shared_ptr<asio::system_timer> m_pTimer = nullptr;
@@ -138,157 +138,3 @@ protected:
 /*
     注意：connect,commond,pipeline命令报错会抛异常,pipe断线会有异常，暂时最好不用
 */
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

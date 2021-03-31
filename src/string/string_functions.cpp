@@ -1,28 +1,28 @@
 
-#include "utility/basic_functions.h"
 #include "string/string_functions.h"
+#include "utility/basic_functions.h"
 
-#include <stdlib.h>
+#include <locale.h>
 #include <stdarg.h>
 #include <stdio.h>
-#include <locale.h>
+#include <stdlib.h>
 
 #ifdef WIN32
 
-#include <windows.h>
 #include <mbctype.h>
+#include <windows.h>
 
 #else
 #endif // WIN32
 
-#include <string.h>
-#include <time.h>
-#include <unistd.h>
-#include <sys/time.h>
-#include <netinet/in.h>
 #include <errno.h>
 #include <memory.h>
+#include <netinet/in.h>
+#include <string.h>
 #include <string>
+#include <sys/time.h>
+#include <time.h>
+#include <unistd.h>
 
 std::string g_strLocale = "zh_CN.utf8";
 
@@ -30,7 +30,7 @@ using namespace std;
 
 /*************************************************************/
 //-------------------------------------------------------------
-//------------------------------ 
+//------------------------------
 void set_locale(const char* _locale)
 {
     if (_locale)
@@ -40,7 +40,7 @@ void set_locale(const char* _locale)
 }
 
 //-------------------------------------------------------------
-//------------------------------ 
+//------------------------------
 const char* get_locale()
 {
     return g_strLocale.c_str();
@@ -65,9 +65,9 @@ int32_t dStrcat(char* dst, uint32_t _size, const char* src)
 }
 
 #else // WIN32
-char*	dStrcat(char *dst,uint32_t _size, const char *src)
+char* dStrcat(char* dst, uint32_t _size, const char* src)
 {
-    return ::strcat(dst,src);
+    return ::strcat(dst, src);
 }
 #endif // WIN32
 
@@ -82,9 +82,9 @@ int32_t dStrncat(char* dst, uint32_t _size, const char* src, uint32_t _count)
 }
 
 #else // WIN32
-char*	dStrncat(char *dst,uint32_t _size, const char *src,uint32_t _count)
+char* dStrncat(char* dst, uint32_t _size, const char* src, uint32_t _count)
 {
-    return ::strncat(dst,src,_count);
+    return ::strncat(dst, src, _count);
 }
 #endif // WIN32
 
@@ -99,9 +99,9 @@ int32_t dStrcpy(char* dst, uint32_t _size, const char* src)
 }
 
 #else // WIN32
-char*	dStrcpy(char *dst,uint32_t _size, const char *src)
+char* dStrcpy(char* dst, uint32_t _size, const char* src)
 {
-    return ::strcpy(dst,src);
+    return ::strcpy(dst, src);
 }
 #endif // WIN32
 
@@ -116,9 +116,9 @@ int32_t dStrncpy(char* dst, uint32_t _size, const char* src, uint32_t len)
 }
 
 #else // WIN323
-char*	dStrncpy(char *dst,uint32_t _size, const char *src, uint32_t len)
+char* dStrncpy(char* dst, uint32_t _size, const char* src, uint32_t len)
 {
-    return ::strncpy(dst,src,len);
+    return ::strncpy(dst, src, len);
 }
 #endif // WIN32
 
@@ -126,8 +126,8 @@ char*	dStrncpy(char *dst,uint32_t _size, const char *src, uint32_t len)
 //------------------------------ 拷贝字符串
 extern int32_t dStrcpyMax(char* dst, uint32_t _size, const char* src, uint32_t len)
 {
-    if (len>=_size)
-        len = _size-1;
+    if (len >= _size)
+        len = _size - 1;
 
     memcpy(dst, src, len);
 
@@ -151,7 +151,7 @@ char* dStrchr(char* s, char c)
 }
 
 //-------------------------------------------------------------
-//------------------------------ 
+//------------------------------
 const char* dStrchr(const char* s, char c)
 {
 
@@ -174,16 +174,14 @@ char* dStrlwr(char* s)
 #ifdef WIN32
     return ::_strlwr(s);
 #else // WIN32
-    if(s)
-    {
-        char * cp;
-        for (cp=s; *cp; ++cp)
-        {
+    if (s) {
+        char* cp;
+        for (cp = s; *cp; ++cp) {
             if ('A' <= *cp && *cp <= 'Z')
                 *cp += 'a' - 'A';
         }
     }
-    return(s);
+    return (s);
 #endif // WIN32
 }
 
@@ -195,17 +193,15 @@ char* dStrupr(char* s)
 #ifdef WIN32
     return ::_strupr(s);
 #else // WIN32
-    if(s)
-    {
-        char *cp;
-        for ( cp = s ; *cp ; ++cp )
-        {
-            if ( ('a' <= *cp) && (*cp <= 'z') )
+    if (s) {
+        char* cp;
+        for (cp = s; *cp; ++cp) {
+            if (('a' <= *cp) && (*cp <= 'z'))
                 *cp -= 'a' - 'A';
         }
     }
 
-    return(s);
+    return (s);
 #endif // WIN32
 }
 
@@ -217,7 +213,7 @@ int32_t ismbblead(char c)
 #ifdef WIN32
     return ::_ismbblead(c);
 #else // WIN32
-    return ((unsigned char)(c) & 0x04);
+    return ((unsigned char)(c)&0x04);
     /*if(( (unsigned char )test_array[k]>=0xA1 && (unsigned char )test_array[k]<=0xF7)
         &&
         ((unsigned char )test_array[k+1]>=0xA1&&(unsigned char )test_array[k+1]<=0xFE))
@@ -252,26 +248,21 @@ int dStrnicmp(const char* s1, const char* s2, int n)
     return ::_strnicmp(s1, s2, n);
 #else // WIN32
     //return strcasecmp(s1,s2);
-    if(s1 && s2 && n > 0)
-    {
-        int f=0;
-        int l=0;
+    if (s1 && s2 && n > 0) {
+        int f = 0;
+        int l = 0;
 
-        do
-        {
+        do {
 
-            if ( ((f = (unsigned char)(*(s1++))) >= 'A') &&
-                (f <= 'Z') )
+            if (((f = (unsigned char)(*(s1++))) >= 'A') && (f <= 'Z'))
                 f -= 'A' - 'a';
 
-            if ( ((l = (unsigned char)(*(s2++))) >= 'A') &&
-                (l <= 'Z') )
+            if (((l = (unsigned char)(*(s2++))) >= 'A') && (l <= 'Z'))
                 l -= 'A' - 'a';
 
-        }
-        while ( --n && f && (f == l) );
+        } while (--n && f && (f == l));
 
-        return ( f - l );
+        return (f - l);
     }
     return 0;
 #endif // WIN32
@@ -290,16 +281,14 @@ char* dStrstr(char* haystack, char* needle)
 char* dStristr(char* haystack, char* needle)
 {
 
-
     //strcasestr(haystack, needle);
     size_t len = ::dStrlen(needle);
-    if (len==0)
-        return haystack;                                        /* 这里我并未照strstr一样返回str，而是返回NULL*/
+    if (len == 0)
+        return haystack; /* 这里我并未照strstr一样返回str，而是返回NULL*/
 
-    while (*haystack)
-    {
+    while (*haystack) {
         /* 这里使用了可限定比较长度的strnicmp*/
-        if (dStrnicmp(haystack, needle, len)==0)
+        if (dStrnicmp(haystack, needle, len) == 0)
             return haystack;
         haystack++;
     }
@@ -313,13 +302,13 @@ int dSprintf(char* string, size_t sizeInBytes, const char* format, ...)
     if (!string || !sizeInBytes || !format)
         return 0;
 
-    int     iRes = 0;
+    int iRes = 0;
     va_list argptr;
     va_start(argptr, format);
 #ifdef WIN32
     iRes = ::vsprintf_s(string, sizeInBytes, format, argptr);
 #else // WIN32
-    iRes = ::vsprintf(string,format,argptr);
+    iRes = ::vsprintf(string, format, argptr);
 #endif // WIN32
     va_end(argptr);
 
@@ -327,7 +316,7 @@ int dSprintf(char* string, size_t sizeInBytes, const char* format, ...)
 }
 
 //-------------------------------------------------------------
-//------------------------------ 
+//------------------------------
 int dVsprintf(char* string, size_t sizeInBytes, const char* format, va_list _Args)
 {
     if (!string || !sizeInBytes || !format)
@@ -337,7 +326,7 @@ int dVsprintf(char* string, size_t sizeInBytes, const char* format, va_list _Arg
 #ifdef WIN32
     iRes = ::vsprintf_s(string, sizeInBytes, format, _Args);
 #else // WIN32
-    iRes = ::vsprintf(string,format,_Args);
+    iRes = ::vsprintf(string, format, _Args);
 #endif // WIN32
 
     return iRes;
@@ -350,13 +339,13 @@ int dPrintf(const char* format, ...)
     if (!format)
         return 0;
 
-    int     iRes = 0;
+    int iRes = 0;
     va_list argptr;
     va_start(argptr, format);
 #ifdef WIN32
     iRes = ::vprintf_s(format, argptr);
 #else // WIN32
-    iRes = ::vprintf(format,argptr);
+    iRes = ::vprintf(format, argptr);
 #endif // WIN32
     va_end(argptr);
 
@@ -372,14 +361,13 @@ void wipeOffChar(char* pStr, uint32_t uLen, char cChar)
         return;
 
     pStr[uLen] = 0;
-    uint32_t      uCount = 0;
+    uint32_t uCount = 0;
     /*1、清除所有字符*/
-    for (uint32_t i      = 0; i<uLen; i++)
-    {
-        if (pStr[i]==0)
+    for (uint32_t i = 0; i < uLen; i++) {
+        if (pStr[i] == 0)
             break;
 
-        if (pStr[i]!=cChar)
+        if (pStr[i] != cChar)
             continue;
 
         uCount++;
@@ -389,20 +377,19 @@ void wipeOffChar(char* pStr, uint32_t uLen, char cChar)
         return;
 
     /*2、移动*/
-    uint32_t      uMove = 0;
-    for (uint32_t i     = 0; i<uLen; i++)
-    {
-        if (uMove>=uCount)
+    uint32_t uMove = 0;
+    for (uint32_t i = 0; i < uLen; i++) {
+        if (uMove >= uCount)
             break;
 
-        if (pStr[i]!=0)
+        if (pStr[i] != 0)
             continue;
 
         uMove++;
-        if (i!=uLen-1)
-            memmove(pStr+i, pStr+i+1, uLen-i-1);
+        if (i != uLen - 1)
+            memmove(pStr + i, pStr + i + 1, uLen - i - 1);
     }
-    pStr[uLen-uCount] = 0;
+    pStr[uLen - uCount] = 0;
 }
 
 //------------------------------------------------------
@@ -416,44 +403,36 @@ void filtrationBlank(char* pStr, uint32_t uLen)
     pStr[uLen] = 0;
 
     /*1.将所有头部空格全部变为0*/
-    for (uint32_t i = 0; i<uLen; i++)
-    {
+    for (uint32_t i = 0; i < uLen; i++) {
         /*遇到0跳出*/
-        if (pStr[i]==0)
+        if (pStr[i] == 0)
             break;
 
-        if (pStr[i]==' ')
-        {
+        if (pStr[i] == ' ') {
             pStr[i] = 0;
             continue;
         }
 
-        if (pStr[i]==-95)
-        {
-            if (i<uLen && pStr[i+1]==-95)
-            {
-                pStr[i]   = 0;
+        if (pStr[i] == -95) {
+            if (i < uLen && pStr[i + 1] == -95) {
+                pStr[i] = 0;
                 pStr[++i] = 0;
                 continue;
             }
         }
 
         /*1.将所有尾部空格全部变为0*/
-        for (uint32_t j = uLen-1; j>i; j--)
-        {
-            if (pStr[j]==0)
+        for (uint32_t j = uLen - 1; j > i; j--) {
+            if (pStr[j] == 0)
                 continue;
 
-            if (pStr[j]==' ')
-            {
+            if (pStr[j] == ' ') {
                 pStr[j] = 0;
                 continue;
             }
-            if (pStr[j]==-95)
-            {
-                if (j>i && pStr[j-1]==-95)
-                {
-                    pStr[j]   = 0;
+            if (pStr[j] == -95) {
+                if (j > i && pStr[j - 1] == -95) {
+                    pStr[j] = 0;
                     pStr[--j] = 0;
                     continue;
                 }
@@ -464,12 +443,11 @@ void filtrationBlank(char* pStr, uint32_t uLen)
     }
 
     /*3.将0之后的数据移动到前面来*/
-    for (uint32_t i = 0; i<uLen; i++)
-    {
-        if (pStr[i]==0)
+    for (uint32_t i = 0; i < uLen; i++) {
+        if (pStr[i] == 0)
             continue;
 
-        memmove(pStr, pStr+i, uLen-i);
+        memmove(pStr, pStr + i, uLen - i);
         break;
     }
 }
@@ -479,17 +457,13 @@ void filtrationBlank(char* pStr, uint32_t uLen)
 bool numeralString(const char* pStr, int32_t nLen)
 {
 
-    if (!pStr || nLen<=0)
+    if (!pStr || nLen <= 0)
         return false;
 
-    for (int32_t i = 0; i<nLen; i++)
-    {
-        if (pStr[i]<'0' || pStr[i]>'9')
+    for (int32_t i = 0; i < nLen; i++) {
+        if (pStr[i] < '0' || pStr[i] > '9')
             return false;
     }
 
     return true;
 }
-
-
-

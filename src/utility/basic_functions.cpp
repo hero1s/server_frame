@@ -7,7 +7,8 @@
 /*************************************************************/
 
 // 设置数组按位标志
-bool SetBitFlag(uint32_t *szFlag, int32_t len, int32_t pos) {
+bool SetBitFlag(uint32_t* szFlag, int32_t len, int32_t pos)
+{
     if (pos >= (len * 32)) {
         return false;
     }
@@ -18,7 +19,8 @@ bool SetBitFlag(uint32_t *szFlag, int32_t len, int32_t pos) {
     return true;
 }
 
-bool UnsetBitFlag(uint32_t *szFlag, int32_t len, int32_t pos) {
+bool UnsetBitFlag(uint32_t* szFlag, int32_t len, int32_t pos)
+{
     if (pos >= (len * 32)) {
         return false;
     }
@@ -29,7 +31,8 @@ bool UnsetBitFlag(uint32_t *szFlag, int32_t len, int32_t pos) {
     return true;
 }
 
-bool IsSetBitFlag(uint32_t *szFlag, int32_t len, int32_t pos) {
+bool IsSetBitFlag(uint32_t* szFlag, int32_t len, int32_t pos)
+{
     if (pos >= (len * 32)) {
         return false;
     }
@@ -39,9 +42,8 @@ bool IsSetBitFlag(uint32_t *szFlag, int32_t len, int32_t pos) {
     return (szFlag[iIdx] & bFlag) > 0;
 }
 
-bool ClearBitFlag(uint32_t *szFlag, int32_t len) {
+bool ClearBitFlag(uint32_t* szFlag, int32_t len)
+{
     memset(szFlag, 0, len * 4);
     return true;
 }
-
-

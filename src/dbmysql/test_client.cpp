@@ -23,16 +23,16 @@ CREATE TABLE `tb_test` (
 );
 */
 /*
+#include <gtest/gtest.h>
 #include <iostream>
+#include <map>
 #include <memory>
+#include <set>
 #include <string>
 #include <vector>
-#include <set>
-#include <map>
-#include <gtest/gtest.h>
 
-#include "dbmysql/sql_join.h"
 #include "dbmysql/mysql_wrapper.h"
+#include "dbmysql/sql_join.h"
 
 using namespace std;
 

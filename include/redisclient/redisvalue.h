@@ -6,8 +6,8 @@
 #ifndef REDISCLIENT_REDISVALUE_H
 #define REDISCLIENT_REDISVALUE_H
 
-#include <variant>
 #include <string>
+#include <variant>
 #include <vector>
 
 #include "config.h"
@@ -16,21 +16,21 @@ namespace redisclient {
 
 class RedisValue {
 public:
-    struct ErrorTag {};
+    struct ErrorTag {
+    };
 
     REDIS_CLIENT_DECL RedisValue();
-    REDIS_CLIENT_DECL RedisValue(RedisValue &&other);
+    REDIS_CLIENT_DECL RedisValue(RedisValue&& other);
     REDIS_CLIENT_DECL RedisValue(int64_t i);
-    REDIS_CLIENT_DECL RedisValue(const char *s);
-    REDIS_CLIENT_DECL RedisValue(const std::string &s);
+    REDIS_CLIENT_DECL RedisValue(const char* s);
+    REDIS_CLIENT_DECL RedisValue(const std::string& s);
     REDIS_CLIENT_DECL RedisValue(std::vector<char> buf);
     REDIS_CLIENT_DECL RedisValue(std::vector<char> buf, struct ErrorTag);
     REDIS_CLIENT_DECL RedisValue(std::vector<RedisValue> array);
 
-
-    RedisValue(const RedisValue &) = default;
-    RedisValue& operator = (const RedisValue &) = default;
-    RedisValue& operator = (RedisValue &&) = default;
+    RedisValue(const RedisValue&) = default;
+    RedisValue& operator=(const RedisValue&) = default;
+    RedisValue& operator=(RedisValue&&) = default;
 
     // Return the value as a std::string if
     // type is a byte string; otherwise returns an empty std::string.
@@ -70,36 +70,34 @@ public:
 
     // Methods for increasing perfomance
     // Throws: boost::bad_get if the type does not match
-    REDIS_CLIENT_DECL std::vector<char> &getByteArray();
-    REDIS_CLIENT_DECL const std::vector<char> &getByteArray() const;
-    REDIS_CLIENT_DECL std::vector<RedisValue> &getArray();
-    REDIS_CLIENT_DECL const std::vector<RedisValue> &getArray() const;
+    REDIS_CLIENT_DECL std::vector<char>& getByteArray();
+    REDIS_CLIENT_DECL const std::vector<char>& getByteArray() const;
+    REDIS_CLIENT_DECL std::vector<RedisValue>& getArray();
+    REDIS_CLIENT_DECL const std::vector<RedisValue>& getArray() const;
 
-
-    REDIS_CLIENT_DECL bool operator == (const RedisValue &rhs) const;
-    REDIS_CLIENT_DECL bool operator != (const RedisValue &rhs) const;
+    REDIS_CLIENT_DECL bool operator==(const RedisValue& rhs) const;
+    REDIS_CLIENT_DECL bool operator!=(const RedisValue& rhs) const;
 
 protected:
-    template<typename T>
-     T castTo() const;
+    template <typename T>
+    T castTo() const;
 
-    template<typename T>
+    template <typename T>
     bool typeEq() const;
 
 private:
     struct NullTag {
-        inline bool operator == (const NullTag &) const {
+        inline bool operator==(const NullTag&) const
+        {
             return true;
         }
     };
 
-
-    std::variant<NullTag, int64_t, std::vector<char>, std::vector<RedisValue> > value;
+    std::variant<NullTag, int64_t, std::vector<char>, std::vector<RedisValue>> value;
     bool error;
 };
 
-
-template<typename T>
+template <typename T>
 T RedisValue::castTo() const
 {
     if (std::holds_alternative<T>(value))
@@ -108,7 +106,7 @@ T RedisValue::castTo() const
         return T();
 }
 
-template<typename T>
+template <typename T>
 bool RedisValue::typeEq() const
 {
     if (std::holds_alternative<T>(value))

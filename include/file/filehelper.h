@@ -2,46 +2,47 @@
 #pragma once
 
 #ifndef _LARGEFILE_SOURCE
-#define _LARGEFILE_SOURCE         //for LFS support
+#define _LARGEFILE_SOURCE //for LFS support
 #endif
 
 #ifndef _FILE_OFFSET_BITS
-#define _FILE_OFFSET_BITS 64     //for LFS support
+#define _FILE_OFFSET_BITS 64 //for LFS support
 #endif
 
 #include <stdio.h>
 #include <string>
 
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <sstream>
-#include <map>
 #include "fundamental/common.h"
 #include "string/stringutility.h"
+#include <fcntl.h>
+#include <map>
+#include <sstream>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <unistd.h>
 
 namespace svrlib {
 class CFileHelper {
 public:
     enum SEEK_TYPE {
-      SK_BEG, SK_END, SK_CUR,
+        SK_BEG,
+        SK_END,
+        SK_CUR,
     };
 
     enum {
-      MOD_RDONLY = 1,
-      MOD_WRONLY_APPEND,
-      MOD_WRONLY_TRUNC,
-      MOD_RDWR_APPEND,
-      MOD_RDWR_TRUNC,
+        MOD_RDONLY = 1,
+        MOD_WRONLY_APPEND,
+        MOD_WRONLY_TRUNC,
+        MOD_RDWR_APPEND,
+        MOD_RDWR_TRUNC,
     };
     enum {
-      ERR_SIZE = -1,
+        ERR_SIZE = -1,
     };
 
     CFileHelper(const std::string& pFileName, int iMod)
-            :
-            m_iFile(-1)
+        : m_iFile(-1)
     {
         Open(pFileName, iMod);
     }
@@ -58,8 +59,7 @@ public:
 
     void Flush()
     {
-        if (m_iFile!=-1)
-        {
+        if (m_iFile != -1) {
 
             sync();
         }
@@ -67,7 +67,7 @@ public:
 
     bool IsOpen() const
     {
-        return m_iFile!=-1;
+        return m_iFile != -1;
     }
 
     bool Seek(uint64_t uiOff, int iPos = SK_BEG);
@@ -84,23 +84,19 @@ public:
      strSeparator:分隔符
      返回值：是否成功
      */
-    template<class datatype>
+    template <class datatype>
     bool DumpMap(const std::map<std::string, datatype>& mDict,
-            const std::string strSeparator = "=")
+        const std::string strSeparator = "=")
     {
-        for (typename std::map<std::string, datatype>::iterator it =
-                                                                        mDict.begin();
-             it!=mDict.end();
-             it++)
-        {
+        for (typename std::map<std::string, datatype>::iterator it = mDict.begin();
+             it != mDict.end();
+             it++) {
             std::ostringstream oStr;
             oStr << it->first << strSeparator << it->second << "\r\n";
 
-            if (!Write((const void*) (oStr.str().c_str()), oStr.str().size()))
-            {
+            if (!Write((const void*)(oStr.str().c_str()), oStr.str().size())) {
                 return false;
             }
-
         }
         return true;
     }
@@ -118,24 +114,22 @@ public:
      返回值：小于0失败，大于0返回个数
      */
     bool Load2Map(std::map<std::string, std::string>& mDict,
-            const std::string& strSeparator);
+        const std::string& strSeparator);
 
-    template<class datatype>
+    template <class datatype>
     bool Load2Map(std::map<std::string, datatype>& mDict,
-            const std::string& strFileName,
-            const std::string& strSeparator = "=")
+        const std::string& strFileName,
+        const std::string& strSeparator = "=")
     {
         // 首先调用上面的函数把数据导入到临时map中
         std::map<std::string, std::string> mTempDict;
-        if (!Load2Map(mTempDict, strFileName, strSeparator))
-        {
+        if (!Load2Map(mTempDict, strFileName, strSeparator)) {
             return false;
         }
 
-        datatype                                     Value;
+        datatype Value;
         std::map<std::string, std::string>::iterator it;
-        for (it = mTempDict.begin(); it!=mTempDict.end(); it++)
-        {
+        for (it = mTempDict.begin(); it != mTempDict.end(); it++) {
             Value = CStringUtility::ConvertFromStr<datatype>(it->second);
             mDict[it->first] = Value;
         }
@@ -148,41 +142,40 @@ public:
 
     static bool IsExistFile(const std::string& pFileName)
     {
-        return access(pFileName.c_str(), 0)==0;
+        return access(pFileName.c_str(), 0) == 0;
     }
 
     static bool DeleteFile(const std::string& pFileName)
     {
-        return unlink(pFileName.c_str())==0;
+        return unlink(pFileName.c_str()) == 0;
     }
 
     uint64_t static GetFileSize(const std::string& pFileName)
     {
         struct stat64 buf;
-        if (stat64(pFileName.c_str(), &buf)<0)
-        {
+        if (stat64(pFileName.c_str(), &buf) < 0) {
             return ERR_SIZE;
         }
         return buf.st_size;
-
     }
 
     bool Rename(const std::string& pOldName, const std::string& pNewName)
     {
-        return 0==rename(pOldName.c_str(), pNewName.c_str());
+        return 0 == rename(pOldName.c_str(), pNewName.c_str());
     }
 
     /** 功能：取得文件最后访问时间 */
     bool GetFileAccessTimeStr(const std::string& strFileName,
-            std::string& strTime);
+        std::string& strTime);
 
     /** 功能：取得文件创建时间 */
     bool GetFileCreateTimeStr(const std::string& strFileName,
-            std::string& strTime);;
+        std::string& strTime);
+    ;
 
     /** 功能：取得文件最后修改时间 */
     bool GetFileLastModifyTimeStr(const std::string& strFileName,
-            std::string& strTime);
+        std::string& strTime);
 
     /** 功能：取得文件最后访问时间 */
     bool GetFileAccessTime(const std::string& strFileName, time_t& stTime);
@@ -198,7 +191,7 @@ public:
 
     /** 功能：从文件名中取得扩展名 */
     bool ExtractFileExtName(const std::string& strFilePath,
-            std::string& strFileExt);
+        std::string& strFileExt);
 
     /*
      功能：根据路径创建相应的目录
@@ -266,17 +259,15 @@ public:
      返回值：小于0失败，大于0为文件个数
      */
     static bool DirFiles(const std::string& strDirPath,
-            std::vector<std::string>& filePaths, bool bRecursion = true,
-            bool bSubDirsAdd = false);
+        std::vector<std::string>& filePaths, bool bRecursion = true,
+        bool bSubDirsAdd = false);
 
     void Close();
 
 private:
     bool Open(const std::string& pFileName, int iMod);
 
-    int         m_iFile;
+    int m_iFile;
     std::string m_strFileName;
 };
 };
-
-

@@ -1,8 +1,8 @@
 
+#include "config/csvreader.h"
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include "config/csvreader.h"
 
 namespace {
 
@@ -10,9 +10,9 @@ namespace {
 
 CCsvConfigReader::CCsvConfigReader(void)
 {
-    backup_   = true;
+    backup_ = true;
     filename_ = "";
-    rows_     = cols_ = 0;
+    rows_ = cols_ = 0;
     data_.push_back(std::vector<std::string>());
     seek_ofset_ = 0;
 }
@@ -24,13 +24,12 @@ CCsvConfigReader::~CCsvConfigReader(void)
 
 bool CCsvConfigReader::OpenFile(const char* filename, bool backup)
 {
-    backup_             = true;
-    filename_           = filename;
+    backup_ = true;
+    filename_ = filename;
 
-    if (!backup_)
-    {
+    if (!backup_) {
         seek_ofset_ = 0;
-        filename_   = filename;
+        filename_ = filename;
         instream_.close();
         instream_.open(filename);
 
@@ -41,13 +40,12 @@ bool CCsvConfigReader::OpenFile(const char* filename, bool backup)
     std::string e, sign = ",\n\r";
 
     // 内存清理
-    rows_     = cols_ = 0;
+    rows_ = cols_ = 0;
     data_.clear();
     data_.push_back(std::vector<std::string>());
 
     // 打开文件
-    if (!m_FileReader.open(filename))
-    {
+    if (!m_FileReader.open(filename)) {
         m_FileReader.close();
         return false;
     }
@@ -55,40 +53,33 @@ bool CCsvConfigReader::OpenFile(const char* filename, bool backup)
     char dataChar;
     bool falg = false; // "号标志
     // 读出文件数据
-    while (!m_FileReader.isEof())
-    {
+    while (!m_FileReader.isEof()) {
         m_FileReader.fread(1, &dataChar);
         // 是否""内的
-        if (falg)
-        {
-            if (dataChar=='\r' || dataChar=='\n')
+        if (falg) {
+            if (dataChar == '\r' || dataChar == '\n')
                 continue;
             else
                 e += dataChar;
 
-            if (dataChar=='"')
+            if (dataChar == '"')
                 falg = false;
 
             continue;
         }
-        if (dataChar=='"')
+        if (dataChar == '"')
             falg = true;
 
         // 遍历字符
-        if (sign.find_first_of(dataChar)==sign.npos)
-        {
+        if (sign.find_first_of(dataChar) == sign.npos) {
             e += dataChar;
-        }
-        else
-        {
+        } else {
             // 判断单元格数据
-            if (dataChar!='\r')
-            {
+            if (dataChar != '\r') {
                 data_[rows_].push_back(e);
                 e = "";
                 // 判断换行
-                if (dataChar=='\n')
-                {
+                if (dataChar == '\n') {
                     data_.push_back(std::vector<std::string>());
                     rows_++;
                 }
@@ -101,18 +92,16 @@ bool CCsvConfigReader::OpenFile(const char* filename, bool backup)
 
     cols_ = data_[0].size();
 
-    if ((int) data_[rows_].size()<cols_)
+    if ((int)data_[rows_].size() < cols_)
         rows_--;
 
     indexs_.clear();
-    for (int i = 0; i<cols_; ++i)
-    {
-        if (indexs_.find(data_[0][i])!=indexs_.end())
-        {
+    for (int i = 0; i < cols_; ++i) {
+        if (indexs_.find(data_[0][i]) != indexs_.end()) {
             assert(false);
             return false;
         }
-        if (data_[0][i].length()<=0)
+        if (data_[0][i].length() <= 0)
             break;
 
         indexs_.insert(std::map<std::string, int>::value_type(data_[0][i], i));
@@ -123,17 +112,15 @@ bool CCsvConfigReader::OpenFile(const char* filename, bool backup)
 bool CCsvConfigReader::SaveFile(const char* fileName)
 {
     // 判断文件名字符串有效性
-    if (backup_==false || fileName==NULL || fileName[0]==0)
+    if (backup_ == false || fileName == NULL || fileName[0] == 0)
         return false;
 
     std::ofstream outcsv(fileName);
 
-    for (int row = 0; row<rows_; row++)
-    {
-        for (int col = 0; col<cols_; col++)
-        {
+    for (int row = 0; row < rows_; row++) {
+        for (int col = 0; col < cols_; col++) {
             outcsv << data_[row][col];
-            if (col!=(cols_-1))
+            if (col != (cols_ - 1))
                 outcsv << ",";
         }
 
@@ -148,7 +135,7 @@ bool CCsvConfigReader::SaveFile(const char* fileName)
 int CCsvConfigReader::GetRows()
 {
     assert(backup_);
-    return (rows_+1);
+    return (rows_ + 1);
 }
 
 // 获得配置数据的列数
@@ -164,36 +151,29 @@ std::string CCsvConfigReader::ReadFieldValue(int row, int col)
     if (!instream_.is_open())
         return std::string("");
 
-    std::string e, sign  = ",\n\r";
-    char        ch;
-    int         temp_row = 0;
-    int         temp_col = 0;
+    std::string e, sign = ",\n\r";
+    char ch;
+    int temp_row = 0;
+    int temp_col = 0;
 
     // 记录偏移
     instream_.seekg(std::ios::beg);
 
     // 循环读出文件数据
-    while (instream_.read((char*) &ch, 1))
-    {
+    while (instream_.read((char*)&ch, 1)) {
         // 遍历字符
-        if (sign.find_first_of(ch)==sign.npos)
-        {
+        if (sign.find_first_of(ch) == sign.npos) {
             e += ch;
-        }
-        else
-        {
-            if (ch!='\r')
-            {
+        } else {
+            if (ch != '\r') {
                 temp_col++;
 
-                if (ch=='\n')
-                {
+                if (ch == '\n') {
                     temp_row++;
                     temp_col = 0;
                 }
 
-                if (((temp_col-1)==col) && (temp_row==row))
-                {
+                if (((temp_col - 1) == col) && (temp_row == row)) {
                     return e;
                 }
 
@@ -212,19 +192,17 @@ int CCsvConfigReader::GetRowCount()
 
 std::string CCsvConfigReader::ReadFieldValue()
 {
-    if (backup_)
-    {
+    if (backup_) {
         curcols_++;
-        if (curcols_>cols_)
-        {
+        if (curcols_ > cols_) {
             printf("数据表:%s 配置项缺少，当前第：%d 列 \n", filename_.c_str(), curcols_);
             return "";
         }
 
-        if (curcols_>(int) data_[currows_].size())
+        if (curcols_ > (int)data_[currows_].size())
             return std::string("");
 
-        return data_[currows_][curcols_-1];
+        return data_[currows_][curcols_ - 1];
     }
 
     // 判断流文件是否有效
@@ -232,26 +210,20 @@ std::string CCsvConfigReader::ReadFieldValue()
         return std::string("");
 
     std::string e, sign = ",\n\r";
-    char        ch;
+    char ch;
 
     instream_.seekg(seek_ofset_, std::ios::beg);
 
     // 循环读出文件数据
-    while (instream_.read((char*) &ch, 1))
-    {
+    while (instream_.read((char*)&ch, 1)) {
         seek_ofset_++;
         // 遍历字符
-        if (sign.find_first_of(ch)==sign.npos)
-        {
+        if (sign.find_first_of(ch) == sign.npos) {
             e += ch;
-        }
-        else
-        {
-            if (ch!='\r')
-            {
+        } else {
+            if (ch != '\r') {
                 // 注意循环判断条件
-                if (ch=='\n')
-                {
+                if (ch == '\n') {
                     seek_ofset_--;
                 }
                 return e;
@@ -265,20 +237,17 @@ std::string CCsvConfigReader::ReadFieldValue()
 std::string CCsvConfigReader::GetFieldValue(int row, const std::string& strcol)
 {
     std::map<std::string, int>::iterator it = indexs_.find(strcol);
-    if (it==indexs_.end())
-    {
+    if (it == indexs_.end()) {
         assert(false);
         return std::string("");
     }
 
-    if (row>rows_)
-    {
+    if (row > rows_) {
         assert(false);
         return std::string("");
     }
 
-    if (it->second>=(int) data_[row].size())
-    {
+    if (it->second >= (int)data_[row].size()) {
         assert(false);
         return std::string("");
     }
@@ -289,20 +258,16 @@ std::string CCsvConfigReader::GetFieldValue(int row, const std::string& strcol)
 // 初始化循环标志
 void CCsvConfigReader::First(int row)
 {
-    if (backup_)
-    {
+    if (backup_) {
         currows_ = row;
         curcols_ = 0;
         return;
     }
 
     // 第一次判断IsDone
-    if (row==0)
-    {
+    if (row == 0) {
         seek_ofset_ = -1;
-    }
-    else
-    {
+    } else {
         seek_ofset_ = 0;
     }
 
@@ -311,28 +276,22 @@ void CCsvConfigReader::First(int row)
         return;
 
     std::string e, sign = ",\n\r";
-    char        ch;
-    int         tmp_row = 0;
+    char ch;
+    int tmp_row = 0;
 
     //记录偏移
     instream_.seekg(std::ios::beg);
 
     //循环读出文件数据
-    while ((tmp_row!=row) && instream_.read((char*) &ch, 1))
-    {
+    while ((tmp_row != row) && instream_.read((char*)&ch, 1)) {
         seek_ofset_++;
 
         //遍历字符
-        if (sign.find_first_of(ch)==sign.npos)
-        {
+        if (sign.find_first_of(ch) == sign.npos) {
             e += ch;
-        }
-        else
-        {
-            if (ch!='\r')
-            {
-                if (ch=='\n')
-                {
+        } else {
+            if (ch != '\r') {
+                if (ch == '\n') {
                     tmp_row++;
                 }
                 e = "";
@@ -344,8 +303,7 @@ void CCsvConfigReader::First(int row)
 // 移动循环标志
 void CCsvConfigReader::Next()
 {
-    if (backup_)
-    {
+    if (backup_) {
         currows_++;
         curcols_ = 0;
         return;
@@ -356,42 +314,33 @@ void CCsvConfigReader::Next()
         return;
 
     std::string e, sign = ",\n\r";
-    char        ch;
+    char ch;
 
     // 记录偏移
     instream_.seekg(seek_ofset_, std::ios::beg);
 
     // 循环读出文件数据
-    while (instream_.read((char*) &ch, 1))
-    {
+    while (instream_.read((char*)&ch, 1)) {
         seek_ofset_++;
         // 遍历字符
-        if (sign.find_first_of(ch)==sign.npos)
-        {
+        if (sign.find_first_of(ch) == sign.npos) {
             e += ch;
-        }
-        else
-        {
-            if (ch!='\r')
-            {
-                if (ch=='\n')
-                {
+        } else {
+            if (ch != '\r') {
+                if (ch == '\n') {
                     return;
                 }
                 e = "";
             }
         }
     }
-
 }
 
 // 判断是否结尾
 bool CCsvConfigReader::IsDone()
 {
-    if (backup_)
-    {
-        if ((rows_<currows_) || (cols_<=curcols_))
-        {
+    if (backup_) {
+        if ((rows_ < currows_) || (cols_ <= curcols_)) {
             return true;
         }
 
@@ -402,16 +351,9 @@ bool CCsvConfigReader::IsDone()
     instream_.seekg(++seek_ofset_, std::ios::beg);
 
     char ch;
-    if (instream_.read((char*) &ch, 1))
-    {
+    if (instream_.read((char*)&ch, 1)) {
         return false;
     }
 
     return true;
 }
-
-
-
-
-
-

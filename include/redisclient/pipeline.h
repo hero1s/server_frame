@@ -5,26 +5,24 @@
 
 #pragma once
 
-#include <deque>
 #include <asio/system_error.hpp>
+#include <deque>
 
-#include "redisbuffer.h"
 #include "config.h"
+#include "redisbuffer.h"
 
-namespace redisclient
-{
+namespace redisclient {
 
 class RedisSyncClient;
 class RedisValue;
 
 // See https://redis.io/topics/pipelining.
-class Pipeline
-{
+class Pipeline {
 public:
-    REDIS_CLIENT_DECL Pipeline(RedisSyncClient &client);
+    REDIS_CLIENT_DECL Pipeline(RedisSyncClient& client);
 
     // add command to pipe
-    REDIS_CLIENT_DECL Pipeline &command(std::string cmd, std::deque<RedisBuffer> args);
+    REDIS_CLIENT_DECL Pipeline& command(std::string cmd, std::deque<RedisBuffer> args);
 
     // Sends all commands to the redis server.
     // For every request command will get response value.
@@ -43,11 +41,11 @@ public:
     //  result[2];  // value of the key "more"
     //
     REDIS_CLIENT_DECL RedisValue finish();
-    REDIS_CLIENT_DECL RedisValue finish(asio::error_code &ec);
+    REDIS_CLIENT_DECL RedisValue finish(asio::error_code& ec);
 
 private:
     std::deque<std::deque<RedisBuffer>> commands;
-    RedisSyncClient &client;
+    RedisSyncClient& client;
 };
 
 }
@@ -55,4 +53,3 @@ private:
 #ifdef REDIS_CLIENT_HEADER_ONLY
 #include "redisclient/impl/pipeline.cpp"
 #endif
-

@@ -5,7 +5,7 @@
 
 // 自动释放
 // 谨慎使用，不当的使用会在释放析构顺序上产生问题
-template<typename TYPE, typename REFTYPE = TYPE>
+template <typename TYPE, typename REFTYPE = TYPE>
 class AutoDeleteSingleton : public svrlib::noncopyable {
 public:
     static REFTYPE&
@@ -16,10 +16,7 @@ public:
     }
 
 protected:
-    AutoDeleteSingleton() { };
+    AutoDeleteSingleton() {};
 
-    virtual ~AutoDeleteSingleton() { };
+    virtual ~AutoDeleteSingleton() {};
 };
-
-
-

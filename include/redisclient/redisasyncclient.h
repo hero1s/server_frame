@@ -6,18 +6,18 @@
 #ifndef REDISASYNCCLIENT_REDISCLIENT_H
 #define REDISASYNCCLIENT_REDISCLIENT_H
 
-#include <asio/io_service.hpp>
 #include <asio/detail/noncopyable.hpp>
+#include <asio/io_service.hpp>
 
-#include <string>
-#include <list>
-#include <type_traits>
 #include <functional>
+#include <list>
+#include <string>
+#include <type_traits>
 
+#include "config.h"
+#include "redisbuffer.h"
 #include "redisclient/impl/redisclientimpl.h"
 #include "redisvalue.h"
-#include "redisbuffer.h"
-#include "config.h"
 
 namespace redisclient {
 
@@ -33,18 +33,18 @@ public:
 
     typedef RedisClientImpl::State State;
 
-    REDIS_CLIENT_DECL RedisAsyncClient(asio::io_service &ioService);
+    REDIS_CLIENT_DECL RedisAsyncClient(asio::io_service& ioService);
     REDIS_CLIENT_DECL ~RedisAsyncClient();
 
     // Connect to redis server
     REDIS_CLIENT_DECL void connect(
-            const asio::ip::tcp::endpoint &endpoint,
-            std::function<void(asio::error_code)> handler);
+        const asio::ip::tcp::endpoint& endpoint,
+        std::function<void(asio::error_code)> handler);
 
 #ifdef BOOST_ASIO_HAS_LOCAL_SOCKETS
     REDIS_CLIENT_DECL void connect(
-            const asio::local::stream_protocol::endpoint &endpoint,
-            std::function<void(asio::error_code)> handler);
+        const asio::local::stream_protocol::endpoint& endpoint,
+        std::function<void(asio::error_code)> handler);
 #endif
 
     // Return true if is connected to redis.
@@ -58,48 +58,47 @@ public:
 
     // Set custom error handler.
     REDIS_CLIENT_DECL void installErrorHandler(
-            std::function<void(const std::string &)> handler);
+        std::function<void(const std::string&)> handler);
 
     // Execute command on Redis server with the list of arguments.
     REDIS_CLIENT_DECL void command(
-            const std::string &cmd, std::deque<RedisBuffer> args,
-            std::function<void(RedisValue)> handler = dummyHandler);
+        const std::string& cmd, std::deque<RedisBuffer> args,
+        std::function<void(RedisValue)> handler = dummyHandler);
 
     // Subscribe to channel. Handler msgHandler will be called
-    // when someone publish message on channel. Call unsubscribe 
+    // when someone publish message on channel. Call unsubscribe
     // to stop the subscription.
-    REDIS_CLIENT_DECL Handle subscribe(const std::string &channelName,
-                                       std::function<void(std::vector<char> msg)> msgHandler,
-                                       std::function<void(RedisValue)> handler = &dummyHandler);
+    REDIS_CLIENT_DECL Handle subscribe(const std::string& channelName,
+        std::function<void(std::vector<char> msg)> msgHandler,
+        std::function<void(RedisValue)> handler = &dummyHandler);
 
-
-    REDIS_CLIENT_DECL Handle psubscribe(const std::string &pattern,
-                                        std::function<void(std::vector<char> msg)> msgHandler,
-                                        std::function<void(RedisValue)> handler = &dummyHandler);
+    REDIS_CLIENT_DECL Handle psubscribe(const std::string& pattern,
+        std::function<void(std::vector<char> msg)> msgHandler,
+        std::function<void(RedisValue)> handler = &dummyHandler);
 
     // Unsubscribe
-    REDIS_CLIENT_DECL void unsubscribe(const Handle &handle);
-    REDIS_CLIENT_DECL void punsubscribe(const Handle &handle);
+    REDIS_CLIENT_DECL void unsubscribe(const Handle& handle);
+    REDIS_CLIENT_DECL void punsubscribe(const Handle& handle);
 
     // Subscribe to channel. Handler msgHandler will be called
-    // when someone publish message on channel; it will be 
+    // when someone publish message on channel; it will be
     // unsubscribed after call.
     REDIS_CLIENT_DECL void singleShotSubscribe(
-            const std::string &channel,
-            std::function<void(std::vector<char> msg)> msgHandler,
-            std::function<void(RedisValue)> handler = &dummyHandler);
+        const std::string& channel,
+        std::function<void(std::vector<char> msg)> msgHandler,
+        std::function<void(RedisValue)> handler = &dummyHandler);
 
     REDIS_CLIENT_DECL void singleShotPSubscribe(
-            const std::string &channel,
-            std::function<void(std::vector<char> msg)> msgHandler,
-            std::function<void(RedisValue)> handler = &dummyHandler);
+        const std::string& channel,
+        std::function<void(std::vector<char> msg)> msgHandler,
+        std::function<void(RedisValue)> handler = &dummyHandler);
 
     // Publish message on channel.
     REDIS_CLIENT_DECL void publish(
-            const std::string &channel, const RedisBuffer &msg,
-            std::function<void(RedisValue)> handler = &dummyHandler);
+        const std::string& channel, const RedisBuffer& msg,
+        std::function<void(RedisValue)> handler = &dummyHandler);
 
-    REDIS_CLIENT_DECL static void dummyHandler(RedisValue) {}
+    REDIS_CLIENT_DECL static void dummyHandler(RedisValue) { }
 
 protected:
     REDIS_CLIENT_DECL bool stateValid() const;

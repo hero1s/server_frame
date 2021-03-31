@@ -7,8 +7,8 @@
 *--------------------------------------------------------------
 *CDBMySql类实现
 *------------------------------------------------------------*/
-#include <my_global.h>
 #include "dbmysql/dbmysql.h"
+#include <my_global.h>
 /*#pragma comment(lib, "libmysql.lib")*/
 /*************************************************************/
 /*
@@ -16,7 +16,7 @@
 */
 CDBMySql::CDBMySql()
 {
-    m_pMySQL     = NULL;
+    m_pMySQL = NULL;
     m_bConnected = false;
 
     mysql_server_init(0, NULL, NULL); /*可交由mysql_init()会自动调用*/
@@ -38,16 +38,16 @@ CDBMySql::~CDBMySql()
 */
 void CDBMySql::initialize(my_bool bReConnect, unsigned int uConnectTimeout, const char* pCharsetName)
 {
-    m_bReConnect      = bReConnect;
+    m_bReConnect = bReConnect;
     m_uConnectTimeout = uConnectTimeout;
 
     memset(m_szCharsetName, 0, sizeof(m_szCharsetName));
 
 #ifdef WIN32
     dSprintf(m_szCharsetName, sizeof(m_szCharsetName), "%s", pCharsetName ? pCharsetName : "gbk");
-#else//WIN32
-    dSprintf(m_szCharsetName,sizeof(m_szCharsetName),"%s",pCharsetName ? pCharsetName : "utf8");
-#endif//WIN32
+#else //WIN32
+    dSprintf(m_szCharsetName, sizeof(m_szCharsetName), "%s", pCharsetName ? pCharsetName : "utf8");
+#endif //WIN32
 
     m_ulCmdLength = 0;
     memset(m_szCommand, 0, sizeof(m_szCommand));
@@ -57,13 +57,12 @@ void CDBMySql::initialize(my_bool bReConnect, unsigned int uConnectTimeout, cons
 **打开链接数据库
 */
 bool CDBMySql::open(const char* host, const char* user, const char* passwd, const char* db, unsigned int port,
-        const char* unixSocket, unsigned long clientFlag)
+    const char* unixSocket, unsigned long clientFlag)
 {
     m_bConnected = false;
     /*分配或初始化(MYSQL)对像*/
-    m_pMySQL     = mysql_init(m_pMySQL);
-    if (!m_pMySQL)
-    {
+    m_pMySQL = mysql_init(m_pMySQL);
+    if (!m_pMySQL) {
 #ifdef _MySQL_throw
         throw CMySQLException(m_pMySQL, 0, "mysql_init()");
 #endif
@@ -124,57 +123,49 @@ bool CDBMySql::open(const char* host, const char* user, const char* passwd, cons
     |									|					|“-shared-memory-base-name”相同。																|
     -------------------------------------------------------------------------------------------------------------------------------------------------------*/
     /*设置链接超时为3秒*/
-    if (mysql_options(m_pMySQL, MYSQL_OPT_CONNECT_TIMEOUT, (char*) &m_uConnectTimeout))
-    {
+    if (mysql_options(m_pMySQL, MYSQL_OPT_CONNECT_TIMEOUT, (char*)&m_uConnectTimeout)) {
 #ifdef _MySQL_throw
         throw CMySQLException(m_pMySQL, 0, "mysql_options(MYSQL_OPT_CONNECT_TIMEOUT)");
 #endif
     }
 
     unsigned int uTimeout = 10;
-    if (mysql_options(m_pMySQL, MYSQL_OPT_READ_TIMEOUT, (char*) &uTimeout))
-    {
+    if (mysql_options(m_pMySQL, MYSQL_OPT_READ_TIMEOUT, (char*)&uTimeout)) {
 #ifdef _MySQL_throw
         throw CMySQLException(m_pMySQL, 0, "mysql_options(MYSQL_OPT_CONNECT_TIMEOUT)");
 #endif
     }
-    if (mysql_options(m_pMySQL, MYSQL_OPT_WRITE_TIMEOUT, (char*) &uTimeout))
-    {
+    if (mysql_options(m_pMySQL, MYSQL_OPT_WRITE_TIMEOUT, (char*)&uTimeout)) {
 #ifdef _MySQL_throw
         throw CMySQLException(m_pMySQL, 0, "mysql_options(MYSQL_OPT_CONNECT_TIMEOUT)");
 #endif
     }
 
     /*自动重链*/
-    if (mysql_options(m_pMySQL, MYSQL_OPT_RECONNECT, &m_bReConnect))
-    {
+    if (mysql_options(m_pMySQL, MYSQL_OPT_RECONNECT, &m_bReConnect)) {
 #ifdef _MySQL_throw
         throw CMySQLException(m_pMySQL, 0, "mysql_options(MYSQL_OPT_RECONNECT)");
 #endif
     }
     /*设置字符集*/
-    if (!m_szCharsetName[0])
-    {
+    if (!m_szCharsetName[0]) {
         dSprintf(m_szCharsetName, sizeof(m_szCharsetName), "%s", "gbk");
     }
 
-    if (mysql_options(m_pMySQL, MYSQL_SET_CHARSET_NAME, m_szCharsetName))
-    {
+    if (mysql_options(m_pMySQL, MYSQL_SET_CHARSET_NAME, m_szCharsetName)) {
 #ifdef _MySQL_throw
         throw CMySQLException(m_pMySQL, 0, "mysql_options(MYSQL_SET_CHARSET_NAME)");
 #endif
     }
     /*使用压缩协议*/
-    if (mysql_options(m_pMySQL, MYSQL_OPT_COMPRESS, NULL))
-    {
+    if (mysql_options(m_pMySQL, MYSQL_OPT_COMPRESS, NULL)) {
 #ifdef _MySQL_throw
         throw CMySQLException(m_pMySQL, 0, "mysql_options(MYSQL_OPT_COMPRESS)");
 #endif
     }
     /*允许通报数据截断错误*/
     my_bool bReportTruncation = true;
-    if (mysql_options(m_pMySQL, MYSQL_REPORT_DATA_TRUNCATION, &bReportTruncation))
-    {
+    if (mysql_options(m_pMySQL, MYSQL_REPORT_DATA_TRUNCATION, &bReportTruncation)) {
 #ifdef _MySQL_throw
         throw CMySQLException(m_pMySQL, 0, "mysql_options(MYSQL_REPORT_DATA_TRUNCATION)");
 #endif
@@ -191,12 +182,11 @@ bool CDBMySql::open(const char* host, const char* user, const char* passwd, cons
     /*port != 0					其值将用作TCP/IP连接的端口号*/
     /*unixSocket != NULL		该字符串描述了应使用的套接字或命名管道*/
     /*clientFlag */
-    clientFlag |= CLIENT_MULTI_STATEMENTS;    /*允许单个字符串内发送多条语句(由';'隔开)*/
-    clientFlag |= CLIENT_MULTI_RESULTS;        /*允许多结果集*/
-    clientFlag |= CLIENT_LOCAL_FILES;        /*允许LOAD DATA LOCAL处理功能*/
+    clientFlag |= CLIENT_MULTI_STATEMENTS; /*允许单个字符串内发送多条语句(由';'隔开)*/
+    clientFlag |= CLIENT_MULTI_RESULTS; /*允许多结果集*/
+    clientFlag |= CLIENT_LOCAL_FILES; /*允许LOAD DATA LOCAL处理功能*/
 
-    if (!mysql_real_connect(m_pMySQL, host, user, passwd, db, port, unixSocket, clientFlag))
-    {
+    if (!mysql_real_connect(m_pMySQL, host, user, passwd, db, port, unixSocket, clientFlag)) {
 #ifdef _MySQL_throw
         throw CMySQLException(m_pMySQL, 0, "mysql_real_connect");
 #endif
@@ -205,8 +195,7 @@ bool CDBMySql::open(const char* host, const char* user, const char* passwd, cons
     }
 
     /*启动多语句处理*/
-    if (mysql_set_server_option(m_pMySQL, MYSQL_OPTION_MULTI_STATEMENTS_ON))
-    {
+    if (mysql_set_server_option(m_pMySQL, MYSQL_OPTION_MULTI_STATEMENTS_ON)) {
 #ifdef _MySQL_throw
         throw CMySQLException(m_pMySQL, 0, "mysql_options(MYSQL_OPTION_MULTI_STATEMENTS_ON)");
 #endif
@@ -238,16 +227,16 @@ bool CDBMySql::ping()
         return false;
 
     int32_t nRes = mysql_ping(m_pMySQL);
-    if (nRes==0)
+    if (nRes == 0)
         return true;
 
 #ifdef _MySQL_throw
-    static char szMsg[128] = {0};
+    static char szMsg[128] = { 0 };
     dSprintf(szMsg, sizeof(szMsg), "mysql_ping(%d)", nRes);
 
     throw CMySQLException(m_pMySQL, 0, szMsg);
 #endif
-	return false;
+    return false;
 }
 
 /*
@@ -276,7 +265,7 @@ bool CDBMySql::setConnectCharacter(const char* charsetName)
     if (!charsetName || !*charsetName || !ping())
         return false;
 
-    return (mysql_set_character_set(m_pMySQL, charsetName)==0);
+    return (mysql_set_character_set(m_pMySQL, charsetName) == 0);
 }
 
 /*
@@ -287,17 +276,13 @@ bool CDBMySql::setCharacter(const char* charsetName)
     if (!charsetName)
         return false;
 
-    try
-    {
+    try {
         CMySQLMultiFree clMultiFree(this);
 
         this->cmd("SET names '%s';SET CHARACTER_SET '%s'", charsetName, charsetName);
         if (this->execute())
             return true;
-    }
-    catch (CMySQLException& e)
-    {
-
+    } catch (CMySQLException& e) {
     }
 
     return false;
@@ -348,8 +333,7 @@ CMySQLResult CDBMySql::showProcessesList()
         return CMySQLResult();
 
     MYSQL_RES* pResult = mysql_list_processes(m_pMySQL);
-    if (!pResult)
-    {
+    if (!pResult) {
         /*错误*/
         /*CR_COMMANDS_OUT_OF_SYNC	以不恰当的顺序执行了命令。
         CR_SERVER_GONE_ERROR		MySQL服务器不可用。
@@ -421,7 +405,7 @@ bool CDBMySql::getConnectCharacter(MY_CHARSET_INFO& sInfo)
 bool CDBMySql::changeConnectUser(const char* user, const char* passwd, const char* db)
 {
     my_bool bRes = mysql_change_user(m_pMySQL, user, passwd, db);
-    if (bRes==0)
+    if (bRes == 0)
         return true;
 
     return false;
@@ -435,7 +419,7 @@ bool CDBMySql::dbSelect(const char* db)
     if (!db || !*db || !ping())
         return false;
 
-    return (mysql_select_db(m_pMySQL, db)==0);
+    return (mysql_select_db(m_pMySQL, db) == 0);
 }
 
 /*
@@ -461,9 +445,9 @@ bool CDBMySql::dbCreate(const char* db, const char* charsetName, const char* col
 
     if (collationName)
         dSprintf(m_szCommand, sizeof(m_szCommand), "%s %sCOLLATE %s", m_szCommand,
-                (charsetName && *charsetName) ? "," : "", collationName);
+            (charsetName && *charsetName) ? "," : "", collationName);
 
-    return (mysql_query(m_pMySQL, m_szCommand)==0);
+    return (mysql_query(m_pMySQL, m_szCommand) == 0);
 }
 
 /*
@@ -485,7 +469,7 @@ bool CDBMySql::dbDrop(const char* db, bool exist)
 
     dSprintf(m_szCommand, sizeof(m_szCommand), "%s %s", m_szCommand, db);
 
-    return (mysql_query(m_pMySQL, m_szCommand)==0);
+    return (mysql_query(m_pMySQL, m_szCommand) == 0);
 }
 
 /*
@@ -505,14 +489,14 @@ bool CDBMySql::dbAlter(const char* db, const char* charsetName, const char* coll
     if (db && *db)
         dSprintf(m_szCommand, sizeof(m_szCommand), "%s %s", m_szCommand, db);
 
-    if (charsetName)/*字符集*/
+    if (charsetName) /*字符集*/
         dSprintf(m_szCommand, sizeof(m_szCommand), "%s CHARACTER SET %s", m_szCommand, charsetName);
 
-    if (collationName)/*整序*/
+    if (collationName) /*整序*/
         dSprintf(m_szCommand, sizeof(m_szCommand), "%s %sCOLLATE %s", m_szCommand,
-                (charsetName && *charsetName) ? "," : "", collationName);
+            (charsetName && *charsetName) ? "," : "", collationName);
 
-    return (mysql_query(m_pMySQL, m_szCommand)==0);
+    return (mysql_query(m_pMySQL, m_szCommand) == 0);
 }
 
 //-------------------------------------------------------------
@@ -522,8 +506,7 @@ bool CDBMySql::tableExists(const char* pTableName)
     if (!pTableName)
         return false;
 
-    try
-    {
+    try {
         CMySQLMultiFree clMultiFree(this);
 
         this->cmd("SHOW TABLES LIKE '%s'", pTableName);
@@ -533,10 +516,7 @@ bool CDBMySql::tableExists(const char* pTableName)
         CMySQLResult clResult = this->getResult();
         if (clResult.rowMore())
             return true;
-    }
-    catch (CMySQLException& e)
-    {
-
+    } catch (CMySQLException& e) {
     }
 
     return false;
@@ -564,7 +544,7 @@ bool CDBMySql::tableCreate(const char* tblName, bool temp, bool exist, const cha
 
     dSprintf(m_szCommand, sizeof(m_szCommand), "%s %s (", m_szCommand, tblName);
 
-    char    szFormat[16*1024] = {0};
+    char szFormat[16 * 1024] = { 0 };
     va_list argptr;
     va_start(argptr, definition);
     dVsprintf(szFormat, sizeof(szFormat), definition, argptr);
@@ -572,7 +552,7 @@ bool CDBMySql::tableCreate(const char* tblName, bool temp, bool exist, const cha
 
     dSprintf(m_szCommand, sizeof(m_szCommand), "%s %s);", m_szCommand, szFormat);
 
-    return (mysql_query(m_pMySQL, m_szCommand)==0);
+    return (mysql_query(m_pMySQL, m_szCommand) == 0);
 }
 
 /*
@@ -592,7 +572,7 @@ bool CDBMySql::tableDrop(bool temp, bool exist, const char* tblName, ...)
     if (exist)
         dSprintf(m_szCommand, sizeof(m_szCommand), "%s IF EXISTS ", m_szCommand);
 
-    char    szFormat[16*1024] = {0};
+    char szFormat[16 * 1024] = { 0 };
     va_list argptr;
     va_start(argptr, tblName);
     dVsprintf(szFormat, sizeof(szFormat), tblName, argptr);
@@ -600,7 +580,7 @@ bool CDBMySql::tableDrop(bool temp, bool exist, const char* tblName, ...)
 
     dSprintf(m_szCommand, sizeof(m_szCommand), "%s %s", m_szCommand, szFormat);
 
-    return (mysql_query(m_pMySQL, m_szCommand)==0);
+    return (mysql_query(m_pMySQL, m_szCommand) == 0);
 }
 
 /*
@@ -614,7 +594,7 @@ bool CDBMySql::tableAlter(const char* tblName, const char* command, ...)
     memset(m_szCommand, 0, sizeof(m_szCommand));
     dSprintf(m_szCommand, sizeof(m_szCommand), "ALTER TABLE %s", tblName);
 
-    char    szFormat[16*1024] = {0};
+    char szFormat[16 * 1024] = { 0 };
     va_list argptr;
     va_start(argptr, command);
     dVsprintf(szFormat, sizeof(szFormat), command, argptr);
@@ -622,7 +602,7 @@ bool CDBMySql::tableAlter(const char* tblName, const char* command, ...)
 
     dSprintf(m_szCommand, sizeof(m_szCommand), "%s %s", m_szCommand, szFormat);
 
-    return (mysql_query(m_pMySQL, m_szCommand)==0);
+    return (mysql_query(m_pMySQL, m_szCommand) == 0);
 }
 
 /*
@@ -636,7 +616,7 @@ bool CDBMySql::tableRename(const char* tblName, const char* newName)
     memset(m_szCommand, 0, sizeof(m_szCommand));
     dSprintf(m_szCommand, sizeof(m_szCommand), "RENAME TABLE %s TO %s", tblName, newName);
 
-    return (mysql_query(m_pMySQL, m_szCommand)==0);
+    return (mysql_query(m_pMySQL, m_szCommand) == 0);
 }
 
 /*
@@ -648,7 +628,7 @@ bool CDBMySql::tableRename(const char* tblName, ...)
         return false;
 
     memset(m_szCommand, 0, sizeof(m_szCommand));
-    char    szFormat[16*1024] = {0};
+    char szFormat[16 * 1024] = { 0 };
     va_list argptr;
     va_start(argptr, tblName);
     dVsprintf(szFormat, sizeof(szFormat), tblName, argptr);
@@ -656,7 +636,7 @@ bool CDBMySql::tableRename(const char* tblName, ...)
 
     dSprintf(m_szCommand, sizeof(m_szCommand), "RENAME TABLE %s", m_szCommand, szFormat);
 
-    return (mysql_query(m_pMySQL, m_szCommand)==0);
+    return (mysql_query(m_pMySQL, m_szCommand) == 0);
 }
 
 /*
@@ -664,8 +644,7 @@ bool CDBMySql::tableRename(const char* tblName, ...)
 */
 CMySQLResult CDBMySql::showDatabase(const char* wild)
 {
-    if (!ping())
-    {
+    if (!ping()) {
 #ifdef _MySQL_throw
         throw CMySQLException(m_pMySQL, 0, "CDBMySql::showDatabase()");
 #endif
@@ -673,8 +652,7 @@ CMySQLResult CDBMySql::showDatabase(const char* wild)
     }
 
     MYSQL_RES* pResult = mysql_list_dbs(m_pMySQL, wild);
-    if (!pResult)
-    {
+    if (!pResult) {
 #ifdef _MySQL_throw
         throw CMySQLException(m_pMySQL, 0, "mysql_list_dbs()");
 #endif
@@ -689,8 +667,7 @@ CMySQLResult CDBMySql::showDatabase(const char* wild)
 */
 CMySQLResult CDBMySql::showTables(const char* wild)
 {
-    if (!ping())
-    {
+    if (!ping()) {
 #ifdef _MySQL_throw
         throw CMySQLException(m_pMySQL, 0, "CDBMySql::showTables()");
 #endif
@@ -699,8 +676,7 @@ CMySQLResult CDBMySql::showTables(const char* wild)
 
     /*SHOW tables [LIKE wild]*/
     MYSQL_RES* pResult = mysql_list_tables(m_pMySQL, wild);
-    if (!pResult)
-    {
+    if (!pResult) {
 #ifdef _MySQL_throw
         throw CMySQLException(m_pMySQL, 0, "mysql_list_tables()");
 #endif
@@ -715,8 +691,7 @@ CMySQLResult CDBMySql::showTables(const char* wild)
 */
 CMySQLResult CDBMySql::showFields(const char* table, const char* wild)
 {
-    if (!ping() || !table || !*table)
-    {
+    if (!ping() || !table || !*table) {
 #ifdef _MySQL_throw
         throw CMySQLException(m_pMySQL, 0, "CDBMySql::showFields");
 #endif
@@ -724,28 +699,23 @@ CMySQLResult CDBMySql::showFields(const char* table, const char* wild)
     }
 
     MYSQL_RES* pResult = NULL;
-    if (0)
-    {
+    if (0) {
         pResult = mysql_list_fields(m_pMySQL, table, wild);
         /*SHOW COLUMNS FROM tbl_name [LIKE wild]*/ /*建议使用语句*/
-        if (!pResult)
-        {
+        if (!pResult) {
             /*错误*/
             /*CR_COMMANDS_OUT_OF_SYNC	以不恰当的顺序执行了命令。
             CR_SERVER_GONE_ERROR		MySQL服务器不可用。
             CR_SERVER_LOST				在查询过程中，与服务器的连接丢失。
             CR_UNKNOWN_ERROR			出现未知错误。 */
         }
-    }
-    else
-    {
-        char szCmd[2*1024] = {0};
+    } else {
+        char szCmd[2 * 1024] = { 0 };
         dSprintf(szCmd, sizeof(szCmd), "SHOW COLUMNS FROM %s", table);
         if (wild)
             dSprintf(szCmd, sizeof(szCmd), "%s %s", szCmd, wild);
 
-        if (mysql_query(m_pMySQL, szCmd)!=0)
-        {
+        if (mysql_query(m_pMySQL, szCmd) != 0) {
 #ifdef _MySQL_throw
             throw CMySQLException(m_pMySQL, 0, "mysql_query()");
 #endif
@@ -755,8 +725,7 @@ CMySQLResult CDBMySql::showFields(const char* table, const char* wild)
         pResult = mysql_store_result(m_pMySQL);
     }
 
-    if (!pResult)
-    {
+    if (!pResult) {
 #ifdef _MySQL_throw
         throw CMySQLException(m_pMySQL);
 #endif
@@ -785,7 +754,7 @@ ulong CDBMySql::cmd(const char* pCmd, ...)
 }
 
 //-------------------------------------------------------------
-//------------------------------ 
+//------------------------------
 ulong CDBMySql::cmd_(const char* pCmd)
 {
     if (!pCmd)
@@ -793,8 +762,8 @@ ulong CDBMySql::cmd_(const char* pCmd)
 
     memset(m_szCommand, 0, sizeof(m_szCommand));
 
-    m_ulCmdLength     = dStrlen(pCmd);
-    if (m_ulCmdLength>sizeof(m_szCommand))
+    m_ulCmdLength = dStrlen(pCmd);
+    if (m_ulCmdLength > sizeof(m_szCommand))
         m_ulCmdLength = sizeof(m_szCommand);
 
     dStrncpy(m_szCommand, sizeof(m_szCommand), pCmd, m_ulCmdLength);
@@ -811,26 +780,22 @@ bool CDBMySql::execute(bool real)
         return false;
 
     //先清理
-    if (m_pMySQL)
-    {
+    if (m_pMySQL) {
         MYSQL_RES* pDBResult = NULL;
-        do
-        {
+        do {
             pDBResult = mysql_store_result(m_pMySQL);
             if (pDBResult)
                 mysql_free_result(pDBResult);
-        }
-        while (mysql_next_result(m_pMySQL)==0);
+        } while (mysql_next_result(m_pMySQL) == 0);
     }
 
     int nRes = 0;
     if (real)
-        nRes = mysql_real_query(m_pMySQL, m_szCommand, m_ulCmdLength);    /*可用于包含二进制数据的查询*/
+        nRes = mysql_real_query(m_pMySQL, m_szCommand, m_ulCmdLength); /*可用于包含二进制数据的查询*/
     else
-        nRes = mysql_query(m_pMySQL, m_szCommand);                        /*不能用于包含二进制数据的查询*/
+        nRes = mysql_query(m_pMySQL, m_szCommand); /*不能用于包含二进制数据的查询*/
 
-    if (nRes!=0)
-    {
+    if (nRes != 0) {
 #ifdef _MySQL_throw
         throw CMySQLException(m_pMySQL, 0, "CDBMySql::execute()");
 #endif
@@ -878,15 +843,13 @@ unsigned int CDBMySql::getResultFieldCount()
 */
 CMySQLResult CDBMySql::getResult()
 {
-    if (!m_pMySQL)
-    {
+    if (!m_pMySQL) {
 #ifdef _MySQL_throw
         throw CMySQLException(m_pMySQL, 0, "CDBMySql::getResult()");
 #endif
         return CMySQLResult(m_pMySQL);
     }
-    if (!mysql_field_count(m_pMySQL))
-    {
+    if (!mysql_field_count(m_pMySQL)) {
 #ifdef _MySQL_throw
         throw CMySQLException(m_pMySQL, 0, "mysql_field_count()");
 #endif
@@ -898,8 +861,7 @@ CMySQLResult CDBMySql::getResult()
 
     /*检索完整的结果集至客户端。*/
     MYSQL_RES* pDBResult = mysql_store_result(m_pMySQL);
-    if (!pDBResult)
-    {
+    if (!pDBResult) {
 #ifdef _MySQL_throw
         throw CMySQLException(m_pMySQL, 0, "mysql_store_result()");
 #endif
@@ -917,12 +879,12 @@ bool CDBMySql::resultMore()
     if (!m_pMySQL)
         return false;
 
-    if (mysql_more_results(m_pMySQL)==1)
+    if (mysql_more_results(m_pMySQL) == 1)
         return false;
 
     /*在多语句执行过程中返回/初始化下一个结果。
     返回值0 成功并有多个结果。-1 成功但没有多个结果。 > 0 出错*/
-    return (mysql_next_result(m_pMySQL)==0);
+    return (mysql_next_result(m_pMySQL) == 0);
 }
 
 /*
@@ -930,8 +892,7 @@ bool CDBMySql::resultMore()
 */
 CMySQLStatement CDBMySql::createStatement()
 {
-    if (!ping())
-    {
+    if (!ping()) {
 #ifdef _MySQL_throw
         throw CMySQLException(m_pMySQL, 0, "CDBMySql::createStatement()");
 #endif
@@ -939,21 +900,17 @@ CMySQLStatement CDBMySql::createStatement()
     }
 
     //先清理
-    if (m_pMySQL)
-    {
+    if (m_pMySQL) {
         MYSQL_RES* pDBResult = NULL;
-        do
-        {
+        do {
             pDBResult = mysql_store_result(m_pMySQL);
             if (pDBResult)
                 mysql_free_result(pDBResult);
-        }
-        while (mysql_next_result(m_pMySQL)==0);
+        } while (mysql_next_result(m_pMySQL) == 0);
     }
     /*创建MYSQL_STMT句柄*/
     MYSQL_STMT* pStmt = mysql_stmt_init(m_pMySQL);
-    if (!pStmt)
-    {
+    if (!pStmt) {
 #ifdef _MySQL_throw
         throw CMySQLException(m_pMySQL, 0, "mysql_stmt_init()");
 #endif
@@ -989,18 +946,12 @@ CMySQLMultiFree::CMySQLMultiFree(CDBMySql* pMySQL)
 */
 CMySQLMultiFree::~CMySQLMultiFree()
 {
-    if (m_pMySQL)
-    {
+    if (m_pMySQL) {
         MYSQL_RES* pDBResult = NULL;
-        do
-        {
+        do {
             pDBResult = mysql_store_result(m_pMySQL);
             if (pDBResult)
                 mysql_free_result(pDBResult);
-        }
-        while (mysql_next_result(m_pMySQL)==0);
+        } while (mysql_next_result(m_pMySQL) == 0);
     }
 }
-
-
-
