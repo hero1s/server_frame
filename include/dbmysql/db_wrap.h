@@ -136,7 +136,7 @@ public:
     CBindParam() { }
     virtual ~CBindParam() { }
 
-    void Bind(std::string& val)
+    void Bind(const std::string& val)
     {
         SetData(val.c_str(),val.length(),emTYPE_STR);
     }

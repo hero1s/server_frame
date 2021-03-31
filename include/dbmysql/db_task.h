@@ -40,7 +40,7 @@ public:
     }
 
     template<typename T>
-    CDBEventReq &pushParam(T &val) {
+    CDBEventReq &pushParam(const T &val) {
         CBindParam param;
         param.Bind(val);
         bindParams.push_back(param);
