@@ -6,6 +6,7 @@ using namespace svrlib;
 
 CDBWrap::CDBWrap() {
     m_pTransaction = nullptr;
+    m_debugLog = true;
 }
 
 CDBWrap::~CDBWrap() {
@@ -95,6 +96,7 @@ bool CDBWrap::ExeSql(const string &strSql) {
             LOG_ERROR("sql:{} execute fail!", strSql.c_str());
             return false;
         }
+        DebugSqlLog(strSql);
     }
     catch (CMySQLException &e) {
         LOG_ERROR("{}({})->{}->{}-sql:{}", e.uCode, e.szError, e.szMsg, e.szSqlState, strSql.c_str());
@@ -116,6 +118,7 @@ int CDBWrap::GetResNumExeSql(const string &strSql) {
             LOG_ERROR("execute fail!,{}", strSql);
             return -1;
         }
+        DebugSqlLog(strSql);
         CMySQLResult clResult = m_clDatabase.getResult();
         return clResult.getRowCount();
     }
@@ -139,6 +142,7 @@ int CDBWrap::GetAffectedNumExeSql(const string &strSql) {
             LOG_ERROR("execute fail!,{}", strSql);
             return -1;
         }
+        DebugSqlLog(strSql);
         return m_clDatabase.getRowAffected();
     }
     catch (CMySQLException &e) {
@@ -156,6 +160,7 @@ int CDBWrap::Query(const string &strSql, vector<CMysqlResultRow> &vecData, int64
             LOG_ERROR("mysql execute fail!:{}", strSql);
             return -1;
         }
+        DebugSqlLog(strSql);
         CMySQLResult clResult = m_clDatabase.getResult();
         while (clResult.rowMore()) {
             m_tmpRowData.Clear();
@@ -239,6 +244,7 @@ bool CDBWrap::ExeBindSql(const string &strSql, vector<CBindParam> &bindParams) {
             LOG_ERROR("mysql execute bind params fail!");
             return false;
         }
+        DebugSqlLog(strSql);
         return true;
     }
     catch (CMySQLException &e) {
@@ -258,6 +264,7 @@ int CDBWrap::Insert(string tblName, SQLJoin &data) {
             LOG_ERROR("execute fail!,{}", strSql);
             return -1;
         }
+        DebugSqlLog(strSql);
         return m_clDatabase.getInsertIncrement();
     }
     catch (CMySQLException &e) {
@@ -326,7 +333,12 @@ string CDBWrap::GetSelectSql(string tblName, SQLJoin &fileds, SQLJoin &where) {
     return ss.str().c_str();
 }
 
-
+void CDBWrap::DebugSqlLog(const string& sql)
+{
+    if(m_debugLog){
+        LOG_DEBUG("Exec Sql:{}",sql);
+    }
+}
 
 
 

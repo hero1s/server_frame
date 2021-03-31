@@ -214,6 +214,7 @@ protected:
     CDBMySql m_clDatabase;
     CMysqlResultRow m_tmpRowData;
     std::shared_ptr<CMySQLTransaction> m_pTransaction;
+    bool m_debugLog;
 
 public:
     CDBWrap();
@@ -270,6 +271,9 @@ public:
 
     // select
     static string GetSelectSql(string tblName, SQLJoin& fileds, SQLJoin& where);
+
+private:
+    void DebugSqlLog(const string& sql);
 
 };
 
