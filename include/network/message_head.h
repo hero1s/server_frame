@@ -5,7 +5,7 @@
 #include "time/time.hpp"
 
 namespace Network {
-    const static uint32_t MAX_MESSAGE_LENGTH = 32 * 1024;//网络层限制最大包长
+    const static uint32_t MAX_MESSAGE_LENGTH = 64 * 1024;//网络层限制最大包长
     class MsgDecode
     {
     public:

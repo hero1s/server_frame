@@ -16,7 +16,7 @@ typedef struct packet_header_t {
     uint16_t msgID;         // 消息id
 } PACKETHEAD;
 
-#define PACKET_MAX_SIZE             1024*16
+#define PACKET_MAX_SIZE             1024*32
 #define PACKET_HEADER_SIZE          sizeof(packet_header_t)
 #define PACKET_MAX_DATA_SIZE        (PACKET_MAX_SIZE - PACKET_HEADER_SIZE)
 
