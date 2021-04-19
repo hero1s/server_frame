@@ -1,5 +1,4 @@
 
-
 #include "helper/helper.h"
 #include <iomanip>
 #include <sstream>
@@ -8,6 +7,7 @@
 #include "svrlib.h"
 #include <arpa/inet.h>
 #include <dirent.h>
+#include <dlfcn.h>
 #include <errno.h>
 #include <net/if.h>
 #include <net/if_arp.h>
@@ -267,4 +267,25 @@ std::string CHelper::ValueToIP(uint32_t ulAddr)
     memset(strTemp, 0, sizeof(strTemp));
     sprintf(strTemp, "%d.%d.%d.%d", (ulAddr & 0x000000ff), (ulAddr & 0x0000ff00) >> 8, (ulAddr & 0x00ff0000) >> 16, (ulAddr & 0xff000000) >> 24);
     return string(strTemp);
+}
+
+//加载动态库函数
+void* CHelper::LoadSoFunction(const std::string& soPath, const std::string& funcName)
+{
+    char* pDllErr = NULL;
+    void* pHandle = dlopen(soPath.c_str(), RTLD_NOW);
+    pDllErr = dlerror();
+    if (pDllErr) {
+        LOG_ERROR("Fatal Error Loading {} error(dlopen),ErrInfo:{} \n", soPath, pDllErr);
+        return NULL;
+    }
+
+    //获取接口
+    void* pFunc = dlsym(pHandle, funcName.c_str());
+    pDllErr = dlerror();
+    if (pDllErr) {
+        LOG_ERROR("Fatal Error Loading {} dysm(CreateGameProc),ErrInfo:{} ", soPath, pDllErr);
+        return NULL;
+    }
+    return pFunc;
 }
