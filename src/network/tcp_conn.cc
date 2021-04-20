@@ -17,7 +17,7 @@
 #define MAGIC_KEY "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"
 
 namespace Network {
-TCPConn::TCPConn(asio::io_service& service_, tcp::socket&& socket, std::string name, bool bWebSocket)
+TCPConn::TCPConn(asio::io_service& service_, tcp::socket&& socket, std::string name, SocketParserType parserType)
     : io_service_(service_)
     , socket_(std::move(socket))
     , type_(kIncoming)
@@ -37,7 +37,7 @@ TCPConn::TCPConn(asio::io_service& service_, tcp::socket&& socket, std::string n
     , close_fn_(nullptr)
 {
 
-    bWebSocket_ = bWebSocket;
+    parserType_ = parserType;
     shake_hands_ = false;
     ws_head_.reset();
     SetKeepAlive(true);
@@ -149,7 +149,7 @@ void TCPConn::SetKeepAlive(bool on)
 
 bool TCPConn::Send(const char* data, uint16_t sz)
 {
-    if (bWebSocket_) {
+    if (parserType_ == SocketParserType_WebSocket) {
         return SendWebSocketMsg(data, sz);
     }
     return SendInLoop(data, sz);
@@ -157,7 +157,7 @@ bool TCPConn::Send(const char* data, uint16_t sz)
 
 bool TCPConn::Send(const std::string& msg)
 {
-    if (bWebSocket_) {
+    if (parserType_ == SocketParserType_WebSocket) {
         return SendWebSocketMsg(msg.c_str(), msg.size());
     }
     return SendInLoop(msg.c_str(), msg.size());
@@ -276,7 +276,7 @@ void TCPConn::HandleRead(asio::error_code err, std::size_t trans_bytes)
         return;
     }
     recv_buffer_.WriteBytes(trans_bytes);
-    if (bWebSocket_) {
+    if (parserType_ == SocketParserType_WebSocket) {
         char* pPacket = nullptr;
         if (!shake_hands_) {
             pPacket = recv_buffer_.Data();
@@ -379,6 +379,14 @@ void TCPConn::HandleRead(asio::error_code err, std::size_t trans_bytes)
             heart_msgcount_++;
         }
 
+    } else if (parserType_ == SocketParserType_Http) {
+        auto nRet = http_parser_execute(&httpData.parser, &httpData.settings, recv_buffer_.ReadBegin(), recv_buffer_.Size());
+        if (recv_buffer_.Size() != nRet) {
+            return;
+        } else if (httpData.http_status == HTTP_STATUS_MSG_COMPLETE) {
+            httpData.reset();
+        }
+        recv_buffer_.ReadBytes(recv_buffer_.Size());
     } else {
         while (decode_ != nullptr) {
             int iLen = decode_->GetPacketLen(recv_buffer_.ReadBegin(), recv_buffer_.Size());
@@ -471,6 +479,52 @@ bool TCPConn::FindHttpParam(const char* param, const char* buf)
         ++buf;
     }
     return false;
+}
+//------------------http--------------------//
+int OnHttpHeaderComplete(http_parser* parser)
+{
+    TCPConn* httpHandler = (TCPConn*)parser->data;
+
+    httpHandler->httpData.http_header_len = parser->nread;
+    httpHandler->httpData.http_status = TCPConn::HTTP_STATUS_HEAD_COMPLETE;
+
+    return 0;
+}
+
+int OnHttpMessageComplete(http_parser* parser)
+{
+    TCPConn* httpHandler = (TCPConn*)parser->data;
+
+    httpHandler->httpData.http_body_len = parser->content_length;
+    httpHandler->httpData.http_status = TCPConn::HTTP_STATUS_MSG_COMPLETE;
+
+    return 0;
+}
+
+int OnHttpOnBodyProc(http_parser* parser, const char* data, size_t length)
+{
+    TCPConn* httpHandler = (TCPConn*)parser->data;
+    if (httpHandler->OnHttpBodyPacketComplete(data, length) < 0) {
+        return -1;
+    }
+    return 0;
+}
+
+void TCPConn::InitHttpParser()
+{
+    http_parser_settings_init(&httpData.settings);
+    httpData.settings.on_headers_complete = OnHttpHeaderComplete;
+    httpData.settings.on_message_complete = OnHttpMessageComplete;
+    httpData.settings.on_body = OnHttpOnBodyProc;
+
+    httpData.parser.data = this;
+    http_parser_init(&httpData.parser, HTTP_REQUEST);
+    httpData.reset();
+}
+int TCPConn::OnHttpBodyPacketComplete(const char* data, size_t len)
+{
+    msg_fn_(shared_from_this(), data, uint32_t(len));
+    return 0;
 }
 
 };

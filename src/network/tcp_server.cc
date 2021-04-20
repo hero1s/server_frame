@@ -8,7 +8,7 @@ namespace Network {
 using asio::ip::address;
 
 TCPServer::TCPServer(asio::io_service& service_, const std::string& bind_ip, uint16_t port, const std::string& name,
-    bool bWebSocket)
+    SocketParserType parserType)
     : io_service_(service_)
     , acceptor_(io_service_, tcp::endpoint(address::from_string(bind_ip), port))
     , accept_socket_(io_service_)
@@ -19,7 +19,7 @@ TCPServer::TCPServer(asio::io_service& service_, const std::string& bind_ip, uin
     , next_conn_id_(0)
     , heartbeat_timer_(io_service_)
     , disconnect_time_(0)
-    , bWebSocket_(bWebSocket)
+    , parserType_(parserType)
 {
     acceptor_.set_option(asio::ip::tcp::acceptor::reuse_address(true));
 }
@@ -83,7 +83,7 @@ void TCPServer::AsyncAccept()
 void TCPServer::HandleNewConn(tcp::socket&& socket)
 {
     std::string cn = name_ + "-conn" + "#" + std::to_string(next_conn_id_++); // TODO use string buffer
-    TCPConnPtr conn = std::make_shared<TCPConn>(io_service_, std::move(socket), cn, bWebSocket_);
+    TCPConnPtr conn = std::make_shared<TCPConn>(io_service_, std::move(socket), cn, parserType_);
     assert(conn->GetType() == TCPConn::kIncoming);
     conn->SetMessageCallback(msg_fn_);
     conn->SetConnCallback(conn_fn_);

@@ -12,7 +12,7 @@ void DefaultConnectionCallback(const TCPConnPtr& connPtr)
     LOG_DEBUG("connect ev:{} from:{}:{}", connPtr->GetName(), connPtr->GetRemoteAddress(), connPtr->GetRemotePort());
 }
 
-void DefaultMessageCallback(const TCPConnPtr& connPtr, char* pData, uint32_t length)
+void DefaultMessageCallback(const TCPConnPtr& connPtr, const char* pData, uint32_t length)
 {
     LOG_DEBUG("recv {},msg from:{},{},size:{}", connPtr->GetName(), connPtr->GetRemoteAddress(), connPtr->GetRemotePort(), length);
 }
