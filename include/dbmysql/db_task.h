@@ -5,7 +5,6 @@
 #include "dbmysql/db_wrap.h"
 #include "dbmysql/dbmysql.h"
 #include "string/string_functions.h"
-#include "svrlib.h"
 #include "third/asio.hpp"
 #include "thread/sync_queue.hpp"
 #include "utility/basic_functions.h"

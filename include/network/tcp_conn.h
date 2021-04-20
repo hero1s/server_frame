@@ -64,6 +64,8 @@ public:
 
     bool Send(const std::string& msg);
 
+    bool SendHttpMsg(const std::string& msg, short result);
+
     bool IsConnected() const { return status_ == kConnected; }
 
     bool IsConnecting() const { return status_ == kConnecting; }

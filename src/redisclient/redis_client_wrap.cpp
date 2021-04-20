@@ -1,5 +1,6 @@
 
 #include "redisclient/redis_client_wrap.h"
+#include "svrlib.h"
 
 using namespace std;
 using namespace svrlib;

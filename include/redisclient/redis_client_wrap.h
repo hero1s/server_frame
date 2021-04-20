@@ -5,7 +5,6 @@
 #include "config/config.h"
 #include "redisasyncclient.h"
 #include "redissyncclient.h"
-#include "svrlib.h"
 #include <string>
 
 using namespace std;

@@ -11,9 +11,6 @@
 #include "sol/sol.hpp"
 #include "spdlog/spdlog.h"
 
-#include "packet/inner_protobuf_pkg.h"
-#include "packet/protobuf_pkg.h"
-
 #include "string/stringutility.h"
 #include "time/time.hpp"
 #include "utility/profile_manager.h"

@@ -43,6 +43,7 @@ TCPConn::TCPConn(asio::io_service& service_, tcp::socket&& socket, std::string n
     SetKeepAlive(true);
     SetTCPNoDelay(true);
     decode_ = nullptr;
+    InitHttpParser();
 }
 
 TCPConn::~TCPConn()
@@ -152,6 +153,10 @@ bool TCPConn::Send(const char* data, uint16_t sz)
     if (parserType_ == SocketParserType_WebSocket) {
         return SendWebSocketMsg(data, sz);
     }
+    if (parserType_ == SocketParserType_Http) {
+        return SendHttpMsg(string(data, sz), 200);
+    }
+
     return SendInLoop(data, sz);
 }
 
@@ -159,6 +164,9 @@ bool TCPConn::Send(const std::string& msg)
 {
     if (parserType_ == SocketParserType_WebSocket) {
         return SendWebSocketMsg(msg.c_str(), msg.size());
+    }
+    if (parserType_ == SocketParserType_Http) {
+        return SendHttpMsg(msg, 200);
     }
     return SendInLoop(msg.c_str(), msg.size());
 }
@@ -240,6 +248,22 @@ bool TCPConn::SendWebSocketMsg(const char* data, uint16_t sz)
     stream.write(sz, data);
     SendInLoop(stream.getBuffer(), stream.getPosition());
     LOG_DEBUG("send web msg:{},size:{}", sz, stream.getPosition());
+    return true;
+}
+
+bool TCPConn::SendHttpMsg(const std::string& msg, short result)
+{
+    char response[1024 * 100] = { 0 };
+    int index = 0;
+    int buff_size = sizeof(response);
+
+    index += snprintf(response, buff_size, "HTTP/1.1 %u \r\n", result);
+    index += snprintf(&response[index], buff_size - index, "Content-Type: text/json\r\n");
+    index += snprintf(&response[index], buff_size - index, "Content-Length: %d\r\n", int(msg.size()));
+    index += snprintf(&response[index], buff_size - index, "\r\n");
+    index += snprintf(&response[index], buff_size - index, "%s", msg.c_str());
+
+    SendInLoop(response, index);
     return true;
 }
 
