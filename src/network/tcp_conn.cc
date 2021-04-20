@@ -3,6 +3,7 @@
 #include "crypt/base64.hpp"
 #include "crypt/sha1.h"
 #include "helper/bufferStream.h"
+#include "memory/memory_pools.h"
 #include "network/message_head.h"
 #include "time/time.hpp"
 #include "utility/comm_macro.h"
@@ -253,9 +254,11 @@ bool TCPConn::SendWebSocketMsg(const char* data, uint16_t sz)
 
 bool TCPConn::SendHttpMsg(const std::string& msg, short result)
 {
-    char response[1024 * 100] = { 0 };
+    size_t len = 1024 * 100;
+    char* response = (char*)svrlib::CMemoryPools::Instance().GetBuff(len);
+    memset(response, 0, len);
     int index = 0;
-    int buff_size = sizeof(response);
+    int buff_size = len;
 
     index += snprintf(response, buff_size, "HTTP/1.1 %u \r\n", result);
     index += snprintf(&response[index], buff_size - index, "Content-Type: text/json\r\n");
@@ -264,6 +267,8 @@ bool TCPConn::SendHttpMsg(const std::string& msg, short result)
     index += snprintf(&response[index], buff_size - index, "%s", msg.c_str());
 
     SendInLoop(response, index);
+
+    svrlib::CMemoryPools::Instance().DelBuff(response);
     return true;
 }
 
