@@ -2,6 +2,7 @@
 #pragma once
 
 #include "protobuf_handle.h"
+#include "third/snappy/snappy.h"
 #include <google/protobuf/message.h>
 #include <google/protobuf/stubs/common.h>
 
@@ -12,6 +13,8 @@ using namespace Network;
 typedef struct packet_header_t {
     uint32_t msgLen; // 消息长度
     uint16_t msgID; // 消息id
+    uint8_t encrypt; // 加密
+    uint8_t compress; // 压缩
 } PACKETHEAD;
 
 #define PACKET_MAX_SIZE 1024 * 32
@@ -46,14 +49,14 @@ public:
 
 class pkg_client {
 public:
-    static bool SendProtobufMsg(const TCPConnPtr& connPtr, const google::protobuf::Message* msg, uint16_t msgID)
+    static bool SendProtobufMsg(const TCPConnPtr& connPtr, const google::protobuf::Message* msg, uint16_t msgID, uint8_t compress = 0, uint8_t crypt = 0)
     {
         static string sstr;
         msg->SerializeToString(&sstr);
-        return SendBuffMsg(connPtr, sstr.c_str(), sstr.length(), msgID);
+        return SendBuffMsg(connPtr, sstr.c_str(), sstr.length(), msgID, compress, crypt);
     }
 
-    static bool SendBuffMsg(const TCPConnPtr& connPtr, const void* msg, uint32_t msg_len, uint16_t msgID)
+    static bool SendBuffMsg(const TCPConnPtr& connPtr, const void* msg, uint32_t msg_len, uint16_t msgID, uint8_t compress = 0, uint8_t crypt = 0)
     {
         if (connPtr == nullptr) {
             return false;
@@ -61,16 +64,32 @@ public:
         static packet_protobuf pkt;
         memset(&pkt, 0, sizeof(pkt));
         pkt.header.msgID = msgID;
-        pkt.header.msgLen = msg_len + PACKET_HEADER_SIZE;
+        pkt.header.compress = compress;
+        pkt.header.encrypt = crypt;
+        if (compress == 0) {
+            pkt.header.msgLen = msg_len + PACKET_HEADER_SIZE;
 
-        if (msg_len >= PACKET_MAX_DATA_SIZE) {
-            LOG_ERROR("msg length more than max length:{}", msg_len);
-            return false;
+            if (msg_len >= PACKET_MAX_DATA_SIZE) {
+                LOG_ERROR("msg length more than max length:{}", msg_len);
+                return false;
+            }
+            memcpy((void*)pkt.protobuf, msg, msg_len);
+
+            //LOG_DEBUG("Socket Send Msg To Client-cmd:%d--len:%d",pkt.header.cmd,pkt.header.datalen);
+            return connPtr->Send((char*)&pkt.header, pkt.header.msgLen);
+        } else {
+            string output = "";
+            snappy::Compress(msg, msg_len, &output);
+            pkt.header.msgLen = output.size() + PACKET_HEADER_SIZE;
+            if (output.size() >= PACKET_MAX_DATA_SIZE) {
+                LOG_ERROR("msg length more than max length:{}", output.size());
+                return false;
+            }
+            memcpy((void*)pkt.protobuf, output.data(), output.size());
+
+            //LOG_DEBUG("Socket Send Msg To Client-cmd:%d--len:%d",pkt.header.cmd,pkt.header.datalen);
+            return connPtr->Send((char*)&pkt.header, pkt.header.msgLen);
         }
-        memcpy((void*)pkt.protobuf, msg, msg_len);
-
-        //LOG_DEBUG("Socket Send Msg To Client-cmd:%d--len:%d",pkt.header.cmd,pkt.header.datalen);
-        return connPtr->Send((char*)&pkt.header, msg_len + PACKET_HEADER_SIZE);
     }
 };
 

@@ -203,8 +203,7 @@ redisclient::RedisValue CRedisWrap::SafeSyncCommond(const std::string& cmd, std:
     return redisclient::RedisValue({}, tag);
 }
 
-void CRedisWrap::SafeAsyncCommond(const std::string& cmd, std::deque<redisclient::RedisBuffer> args,
-    std::function<void(redisclient::RedisValue)> handler)
+void CRedisWrap::SafeAsyncCommond(const std::string& cmd, std::deque<redisclient::RedisBuffer> args, reply_callback_t handler)
 {
     try {
         m_asyncClient->command(cmd, args, handler);

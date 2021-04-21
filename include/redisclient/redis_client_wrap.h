@@ -124,7 +124,7 @@ protected:
 
     virtual void SafeAsyncCommond(
         const std::string& cmd, std::deque<redisclient::RedisBuffer> args,
-        std::function<void(redisclient::RedisValue)> handler = [](redisclient::RedisValue) {});
+        reply_callback_t handler = [](redisclient::RedisValue) {});
 
 protected:
     std::shared_ptr<asio::system_timer> m_pTimer = nullptr;

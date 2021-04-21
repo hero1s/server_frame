@@ -71,11 +71,11 @@ public:
     bool Init(asio::io_context& context, uint32_t shmKey, bool bReset, handSaveFunc func)
     {
         if (false == m_hpPlayerCache.InitShm(shmKey, s_CACHE_MAX_COUNT)) {
-            LOG_ERROR("init player cach fail");
+            LOG_ERROR("init player cach fail:{}", shmKey);
             return false;
         }
         if (bReset) {
-            LOG_ERROR("clear shm data");
+            LOG_ERROR("clear shm data:{}", shmKey);
             m_hpPlayerCache.Clear(); // ÷ÿ÷√π≤œÌƒ⁄¥Ê
         }
         m_handSaveFunc = func;
@@ -114,7 +114,7 @@ public:
 
             int8_t bRet = m_hpPlayerCache.Insert(key, value);
             if (bRet == INSERT_FAIL) {
-                LOG_ERROR("update cache fail");
+                LOG_ERROR("update cache fail:uid {} type {}", uid, cacheType);
             } else if (bRet == INSERT_SUCCESS) {
             } else if (bRet == INSERT_SUCCESS_WILL_FULL) {
                 LOG_ERROR("update success but want full,please more extra");
