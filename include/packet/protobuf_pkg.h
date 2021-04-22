@@ -79,7 +79,7 @@ public:
             return connPtr->Send((char*)&pkt.header, pkt.header.msgLen);
         } else {
             string output = "";
-            snappy::Compress(msg, msg_len, &output);
+            snappy::Compress((const char*)msg, msg_len, &output);
             pkt.header.msgLen = output.size() + PACKET_HEADER_SIZE;
             if (output.size() >= PACKET_MAX_DATA_SIZE) {
                 LOG_ERROR("msg length more than max length:{}", output.size());
