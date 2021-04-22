@@ -22,36 +22,36 @@ void CCooling::clearCool()
 
 //-------------------------------------------------------------
 //------------------------------
-uint32_t CCooling::getCoolTick()
+uint64_t CCooling::getCoolTick()
 {
     if (!m_uBeginTick || !m_uEndTick)
         return 0;
 
     uint64_t uTick = time::getSystemTick64();
-    return (m_uEndTick > uTick ? uint32_t(m_uEndTick - uTick) : 0);
+    return (m_uEndTick > uTick ? uint64_t(m_uEndTick - uTick) : 0);
 }
 
-uint32_t CCooling::getPassTick()
+uint64_t CCooling::getPassTick()
 {
     if (!m_uBeginTick || !m_uEndTick)
         return 0;
 
     uint64_t uTick = time::getSystemTick64();
     if (uTick > m_uBeginTick)
-        return (uint32_t(uTick - m_uBeginTick));
+        return (uint64_t(uTick - m_uBeginTick));
     return 0;
 }
 
 //-------------------------------------------------------------
 //------------------------------ 获得总冷却时间
-uint32_t CCooling::getTotalTick()
+uint64_t CCooling::getTotalTick()
 {
-    return ((m_uEndTick > m_uBeginTick) ? uint32_t(m_uEndTick - m_uBeginTick) : 0);
+    return ((m_uEndTick > m_uBeginTick) ? uint64_t(m_uEndTick - m_uBeginTick) : 0);
 }
 
 //-------------------------------------------------------------
 //------------------------------
-bool CCooling::beginCooling(uint32_t uTick)
+bool CCooling::beginCooling(uint64_t uTick)
 {
     if (uTick <= 0) {
         m_uBeginTick = 0;
