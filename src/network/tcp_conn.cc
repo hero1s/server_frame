@@ -553,6 +553,8 @@ void TCPConn::InitHttpParser()
 int TCPConn::OnHttpBodyPacketComplete(const char* data, size_t len)
 {
     msg_fn_(shared_from_this(), data, uint32_t(len));
+    recvtime_ = Now();
+    heart_msgcount_++;
     return 0;
 }
 
