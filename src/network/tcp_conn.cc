@@ -4,6 +4,7 @@
 #include "crypt/sha1.h"
 #include "helper/bufferStream.h"
 #include "network/message_head.h"
+#include "string/stringutility.h"
 #include "time/time.hpp"
 #include "utility/comm_macro.h"
 #include <arpa/inet.h>
@@ -16,6 +17,7 @@
 #define WEB_SOCKET_HANDS_RE "HTTP/1.1 101 Switching Protocols\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: %s\r\n\r\n"
 #define MAGIC_KEY "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"
 
+using namespace svrlib;
 namespace Network {
 TCPConn::TCPConn(asio::io_service& service_, tcp::socket&& socket, std::string name, SocketParserType parserType)
     : io_service_(service_)
@@ -253,17 +255,13 @@ bool TCPConn::SendWebSocketMsg(const char* data, uint16_t sz)
 
 bool TCPConn::SendHttpMsg(const std::string& msg, short result)
 {
-    char response[1024 * 100] = { 0 };
-    int index = 0;
-    int buff_size = sizeof(response);
-
-    index += snprintf(response, buff_size, "HTTP/1.1 %u \r\n", result);
-    index += snprintf(&response[index], buff_size - index, "Content-Type: text/json\r\n");
-    index += snprintf(&response[index], buff_size - index, "Content-Length: %d\r\n", int(msg.size()));
-    index += snprintf(&response[index], buff_size - index, "\r\n");
-    index += snprintf(&response[index], buff_size - index, "%s", msg.c_str());
-
-    SendInLoop(response, index);
+    std::string str;
+    str.append(CStringUtility::FormatToString("HTTP/1.1 %u \r\n", result));
+    str.append(CStringUtility::FormatToString("Content-Type: text/json\r\n"));
+    str.append(CStringUtility::FormatToString("Content-Length: %d\r\n", int(msg.size())));
+    str.append(CStringUtility::FormatToString("\r\n"));
+    str.append(CStringUtility::FormatToString("%s", msg.c_str()));
+    SendInLoop(str.c_str(), str.size());
     return true;
 }
 

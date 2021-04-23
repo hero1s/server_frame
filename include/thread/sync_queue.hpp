@@ -120,4 +120,3 @@ private:
     size_t m_maxSize; //同步队列最大的size
     bool m_needStop; //停止的标志
 };
-
